@@ -5,12 +5,10 @@
 /_____/\____/|__/|__/_/ |_/\___/\__/  
 Simple Unity3D Solution ©2020 by Kuxii
 */
-using LowNet.Data;
 using LowNet.Packets;
-using LowNet.Server.Data;
+using LowNet.Server.Packets;
 using System;
 using System.Collections.Generic;
-using LowNet.Server.Packets;
 using static LowNet.Server.LowNetServer;
 
 namespace LowNet.ServerPackets

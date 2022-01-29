@@ -10,13 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\Program Files\Unity\Hub\Editor\2021.2.4f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
+    <Folder Include="Gameclient\Clientstore\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Gameclient\Clientstore\" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Program Files\Unity\Hub\Editor\2021.2.4f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

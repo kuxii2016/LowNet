@@ -6,9 +6,6 @@
 Simple Unity3D Solution ©2020 by Kuxii
 */
 using LowNet.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LowNet.Gameclient.Packets
 {

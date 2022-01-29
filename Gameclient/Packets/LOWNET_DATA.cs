@@ -6,9 +6,6 @@
 Simple Unity3D Solution ©2020 by Kuxii
 */
 using LowNet.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LowNet.Gameclient.Packets
 {
@@ -27,7 +24,7 @@ namespace LowNet.Gameclient.Packets
             int Checksum = store.PopInt();
             int clietnt = store.PopInt();
             byte Question = store.PopByte();
-            switch(Question)
+            switch (Question)
             {
                 case 0:
                     {

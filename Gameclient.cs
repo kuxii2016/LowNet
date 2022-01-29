@@ -5,7 +5,6 @@
 /_____/\____/|__/|__/_/ |_/\___/\__/  
 Simple Unity3D Solution ©2020 by Kuxii
 */
-using LowNet.ClientPackets;
 using LowNet.Data;
 using LowNet.Events;
 using LowNet.Gameclient.Transport;
@@ -160,7 +159,7 @@ namespace LowNet.Gameclient
         {
             if (discoveryLayer != null)
                 discoveryLayer.Shutdown();
-            if(UDP!=null)
+            if (UDP != null)
                 UDP.Shutdown();
         }
 
