@@ -22,7 +22,7 @@ namespace LowNet.Unity3D
         /// <summary>
         /// Buildings Id
         /// </summary>
-        public int BuildingId;
+        [HideInInspector]public int BuildingId = -1;
         /// <summary>
         /// Building Owner
         /// </summary>
@@ -39,7 +39,7 @@ namespace LowNet.Unity3D
         /// Objects was should sync the Network
         /// </summary>
         public List<GameObject> SyncObjects;
-        public List<SyncObject> SyncObjectsOld;
+        private List<SyncObject> SyncObjectsOld;
         /// <summary>
         /// Will Insert default Editor Placed Objects
         /// </summary>
@@ -73,7 +73,7 @@ namespace LowNet.Unity3D
             {
                 if (SmartObjectManager.Instance != null)
                 {
-                    SmartObjectManager.CreateMapobject(CollectionId, BuildingId, this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name);
+                    SmartObjectManager.CreateMapobject(BuildingId, CollectionId,  this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name);
                     Destroy(this.gameObject);
                 }
             }
@@ -81,11 +81,26 @@ namespace LowNet.Unity3D
             {
                 if (SmartObjectManager.Instance != null)
                 {
-                    int builing = SmartObjectManager.CreateMapobject(CollectionId, BuildingId, this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name);
-                    Destroy(this.gameObject);
-                    LowNet.Server.Packets.LOWNET_OBJECT.Send(new Server.Data.Client(-1, ServerNetworkmanager.NetworkManager.server), BuildingId, this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name);
+                    int builing = SmartObjectManager.CreateMapobject(BuildingId, CollectionId,  this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name);
+                    if(Server.LowNetServer.server.TCPLayer != null)
+                        try
+                        {
+                            Server.Packets.LOWNET_OBJECT.Send(null, BuildingId, this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name, true);
+                        }
+                        catch { }
+                    Destroy(gameObject);
                 }
             }
+        }
+
+        void OnDisable()
+        {
+            try
+            {
+                LowNet.Server.Packets.LOWNET_OBJECT.Send(null, BuildingId, this.gameObject.transform.position, this.gameObject.transform.rotation, Owner, (ObjectType)Type, Metadata, this.gameObject.name, false);
+            }
+            catch { }
+            SmartObjectManager.RemoveMapobject(BuildingId);
         }
 
         public void Update()

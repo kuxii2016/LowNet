@@ -15,6 +15,7 @@ namespace LowNet.Unity3D
     {
         public static Dictionary<int, SmartObject> mapObjects = new Dictionary<int, SmartObject>();
         public static SmartObjectManager Instance;
+        public int ObjectCount = 0;
 
         public List<SmartObject> SmartObjects;
 
@@ -37,13 +38,19 @@ namespace LowNet.Unity3D
             //building.transform.parent = GameManager.GetObjectTransform();
             building.BuildingId = mapObjects.Count + 1;
             mapObjects.Add(mapObjects.Count + 1, building);
+            LowNetlog.PrintLog($"Create SmartObject: {ListIndex} ObjectType: {id} Pos=({pos.x},{pos.y},{pos.z})", Logmessage.Debug);
+            Instance.ObjectCount++;
             return building.BuildingId;
         }
 
         public static void RemoveMapobject(int id)
         {
+            if (id == -1)
+                return;
+            LowNetlog.PrintLog($"Remove SmartObject: {id} ObjectType: {mapObjects[id].CollectionId} Pos=({mapObjects[id].gameObject.transform.position.x},{mapObjects[id].gameObject.transform.position.y},{mapObjects[id].gameObject.transform.position.z})", Logmessage.Debug);
             GameObject building = mapObjects[id].gameObject;
             mapObjects.Remove(id);
+            Instance.ObjectCount--;
             Destroy(building);
         }
     }

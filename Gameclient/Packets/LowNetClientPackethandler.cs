@@ -63,22 +63,8 @@ namespace LowNet.ClientPackets
         /// <param name="Customenum">Optional, for Debugging, Custom Name from Enum or was you Want</param>
         public static void AddPackets(int packetId, PacketHandler packet, string Customenum = null)
         {
-            try
-            {
-                if (packet == null || packetId == 0)
-                    return;
-
-                GameClient.ClientPackets.Add(GameClient.ClientPackets.Count + packetId, packet);
-
-                if (Customenum != null)
-                    client.Debug("Add Custompacket: [" + (packetId + 1).ToString() + "] " + "CustomPacketOrder." + Customenum + " Relay to() =>" + packet.Method.Name + "(Client client, Store store)", packet.GetType());
-                else
-                    client.Debug("Add Custompacket: [" + (packetId + 1).ToString() + "] " + "CustomPacketOrder.PacketEnum_" + packetId.ToString() + " Relay to() =>" + packet.Method.DeclaringType + "." + packet.Method.Name + "(Client client, Store store)", client);
-            }
-            catch (Exception ex)
-            {
-                client.Error("Packethandler Inject Custompackets: " + ex.ToString(), client);
-            }
+            GameClient.ClientPackets.Add(GameClient.ClientPackets.Count + packetId, packet);
+            client.Debug($"Add Custompacket: [{GameClient.ClientPackets.Count + 1}]CustomPacketOrder.PacketEnum_{packetId} Relay to()=> {packet.Method.DeclaringType}.{packet.Method.Name}(Client client, Store store)", client);
         }
 
         /// <summary>
@@ -90,14 +76,7 @@ namespace LowNet.ClientPackets
         {
             foreach (var item in GameClient.ClientPackets)
             {
-                try
-                {
-                    client.Debug("LowNetpacket: [" + item.Key.ToString() + "] " + "LowNetpacketOrder." + ((LowNetpacketOrder)item.Key).ToString() + " Relay to() =>" + item.Value.Method.DeclaringType + "." + item.Value.Method.Name + "(Client client, Store store)", client);
-                }
-                catch
-                {
-                    client.Debug("Custompacket: [" + item.ToString() + "] " + "CustomPacketOrder.PacketEnum_" + item.ToString() + " Relay to() =>" + item.Value.Method.DeclaringType + "." + item.Value.Method.Name + "(Client client, Store store)", client);
-                }
+                client.Debug("LowNetpacket: [" + item.Key.ToString() + "] " + "LowNetpacketOrder." + ((LowNetpacketOrder)item.Key).ToString() + " Relay to() =>" + item.Value.Method.DeclaringType + "." + item.Value.Method.Name + "(Client client, Store store)", client);
             }
         }
         #endregion
