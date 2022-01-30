@@ -5,40 +5,40 @@
 /_____/\____/|__/|__/_/ |_/\___/\__/  
 Simple Unity3D Solution ©2022 by Kuxii
 */
-namespace LowNet.Packets
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace LowNet.Data
 {
     /// <summary>
-    /// Lownet Packet Order
+    /// Object Types
     /// </summary>
-    public enum LowNetpacketOrder
+    public enum ObjectType
     {
         /// <summary>
-        /// On Client Connect
+        /// Player Object was can use Player
         /// </summary>
-        LOWNET_CONNECT = 1,
+        PlayerObject,
         /// <summary>
-        /// Handshake with Server
+        /// Server Object was can not Controll Player
         /// </summary>
-        LOWNET_HANDSHAKE,
+        ServerObject,
         /// <summary>
-        /// Lownet Data
+        /// Map Object was is Mooving
         /// </summary>
-        LOWNET_DATA,
+        MapObject,
         /// <summary>
-        /// Used for Player Spawning
+        /// Platform
         /// </summary>
-        LOWNET_PLAYER,
+        Platform,
         /// <summary>
-        /// Used for Objects Spawning
+        /// Playerobj
         /// </summary>
-        LOWNET_OBJECT,
+        Player,
         /// <summary>
-        /// Connects Player UDP Layer
+        /// Vehicleobj
         /// </summary>
-        LOWNET_CONNECT_UDP,
-        /// <summary>
-        /// Syncro for Smart Objects
-        /// </summary>
-        LOWNET_SMARTOBJECT_SYNCRO,
+        Vehicle
     }
 }
