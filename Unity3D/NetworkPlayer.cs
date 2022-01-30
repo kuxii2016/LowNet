@@ -2,13 +2,19 @@
 
 namespace LowNet.Unity3D
 {
-    [System.Serializable]
     /// <summary>
-    /// LowNet Base Unity3d Networkplayer
+    /// Network Player
     /// </summary>
+    [System.Serializable]
     public class NetworkPlayer : MonoBehaviour
     {
+        /// <summary>
+        /// Own Player Instance
+        /// </summary>
         public static NetworkPlayer networkPlayer;
+        /// <summary>
+        /// Prefab Model
+        /// </summary>
         public GameObject Prefab;
         /// <summary>
         /// Network PlayerId

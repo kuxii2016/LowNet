@@ -50,7 +50,7 @@ namespace LowNet.Data
         /// <summary>
         /// Create Store with Id
         /// </summary>
-        /// <param name="_id"></param>
+        /// <param name="value"></param>
         public Store(int value)
         {
             buffer = new List<byte>();

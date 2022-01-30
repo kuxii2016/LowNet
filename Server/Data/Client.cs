@@ -337,6 +337,9 @@ namespace LowNet.Server.Data
             });
         }
 
+        /// <summary>
+        /// Spawn Player and Send Other
+        /// </summary>
         public void CreatePlayer()
         {
             Mainserver.InvokePlayerconnect(this);
@@ -346,7 +349,6 @@ namespace LowNet.Server.Data
                 {
                     if (client.Networkplayer.PlayerId != ClientId)
                     {
-                        //Spawnplayer.Send(id, _client.player);
                         LOWNET_PLAYER.Create(client.Networkplayer, true, client);
                     }
                 }
@@ -357,7 +359,6 @@ namespace LowNet.Server.Data
                 if (client.Networkplayer != null)
                 {
                     LOWNET_PLAYER.Create(client.Networkplayer, true, this);
-                    //Spawnplayer.Send(_client.id, player);
                 }
             }
         }

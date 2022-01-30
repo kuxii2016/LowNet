@@ -31,47 +31,83 @@ namespace LowNet.Data
         /// Public PlayerRot
         /// </summary>
         public Quaternion PlayerRot { get { return GameobjectRot; } }
+        /// <summary>
+        /// Ininity 3d Modellist Id
+        /// </summary>
         public int Unity3dModel { get; set; } = 0;
 
+        #region Set Playerinfo
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
         public void SetPlayer(int playerId)
         {
             PlayerId = playerId;
         }
-
-        public void SetPlayer(int playerId, string Name)
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="name"></param>
+        public void SetPlayer(int playerId, string name)
         {
             PlayerId = playerId;
-            Name = Name;
+            Name = name;
         }
-
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="Pos"></param>
         public void SetPlayer(int playerId, Vector3 Pos)
         {
             PlayerId = playerId;
             GameobjectPos = Pos;
         }
-
-        public void SetPlayer(int playerId, string Name, Vector3 Pos)
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="name"></param>
+        /// <param name="Pos"></param>
+        public void SetPlayer(int playerId, string name, Vector3 Pos)
         {
             PlayerId = playerId;
-            Name = Name;
+            Name = name;
             GameobjectPos = Pos;
         }
-
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="Pos"></param>
+        /// <param name="Rot"></param>
         public void SetPlayer(int playerId, Vector3 Pos, Quaternion Rot)
         {
             PlayerId = playerId;
             GameobjectPos = Pos;
             GameobjectRot = Rot;
         }
-
-        public void SetPlayer(int playerId, string Name, Vector3 Pos, Quaternion Rot)
+        /// <summary>
+        /// Set Player
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="name"></param>
+        /// <param name="Pos"></param>
+        /// <param name="Rot"></param>
+        public void SetPlayer(int playerId, string name, Vector3 Pos, Quaternion Rot)
         {
             PlayerId = playerId;
-            Name = Name;
+            Name = name;
             GameobjectPos = Pos;
             GameobjectRot = Rot;
         }
-
+        /// <summary>
+        /// Set Player Model
+        /// </summary>
+        /// <param name="Model"></param>
         public void SetModel(int Model) => Unity3dModel = Model;
+        #endregion
     }
 }

@@ -40,7 +40,6 @@ namespace LowNet.Gameclient.Packets
                 return;
             }
 
-            ///Possible? i think not or i have Written Bad Code xD
             if (ClientId > Maxplayer)
             {
                 GameClient.Instance.Error("Server is Full!", GameClient.Instance);
