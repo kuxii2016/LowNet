@@ -11,6 +11,7 @@ using LowNet.Server;
 using LowNet.Server.Data;
 using LowNet.Utils;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LowNet.Unity3D
@@ -28,6 +29,10 @@ namespace LowNet.Unity3D
         /// Network Manager Instance
         /// </summary>
         public static ServerNetworkmanager NetworkManager { get; private set; }
+        /// <summary>
+        /// Server ServerIP
+        /// </summary>
+        public string ServerIP = "127.0.0.1";
         /// <summary>
         /// Server Listenport
         /// </summary>
@@ -54,6 +59,11 @@ namespace LowNet.Unity3D
         /// </summary>
         [Header("Server Logging Settings")]
         public Logsettings Logging;
+        /// <summary>
+        /// Player Objects
+        /// </summary>
+        [Header("Player Spawnprefabs")]
+        public List<GameObject> spawnPrefabs;
 
         void Awake()
         {
@@ -109,19 +119,31 @@ namespace LowNet.Unity3D
             }
         }
 
+        #region UDP Sending
         /// <summary>
         /// Send UDP Data
         /// </summary>
-        public static void SendUDP()
+        public static void SendUDP(Client client, Store store)
         {
+            NetworkManager.server.UDPLayer.SendUDP(client, store);
         }
 
         /// <summary>
         /// Send UDP Data to All
         /// </summary>
-        public static void SendUDPAll()
+        public static void SendUDPAll(Store store)
         {
+            NetworkManager.server.UDPLayer.SendAll(store);
         }
+
+        /// <summary>
+        /// Send UDP Data to All but not on this Player
+        /// </summary>
+        public static void SendUDPAll(Client client, Store store)
+        {
+            NetworkManager.server.UDPLayer.SendAll(client, store);
+        }
+        #endregion
 
         #region TCP Sending
         /// <summary>
