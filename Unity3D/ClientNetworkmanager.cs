@@ -3,13 +3,14 @@
   / /   / __ \ | /| / /  |/ / _ \/ __/
  / /___/ /_/ / |/ |/ / /|  /  __/ /_  
 /_____/\____/|__/|__/_/ |_/\___/\__/  
-Simple Unity3D Solution ©2020 by Kuxii
+Simple Unity3D Solution ©2022 by Kuxii
 */
 using LowNet.ClientPackets;
 using LowNet.Data;
 using LowNet.Events;
 using LowNet.Gameclient;
 using LowNet.Gameclient.Transport;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LowNet.Unity3D
@@ -68,6 +69,11 @@ namespace LowNet.Unity3D
         /// </summary>
         [Header("Client Logging Mode")]
         public Logsettings Logging = Logsettings.Logging_Normal;
+        /// <summary>
+        /// Player Objects
+        /// </summary>
+        [Header("Player Spawnprefabs")]
+        public List<GameObject> spawnPrefabs;
 
         void Awake()
         {

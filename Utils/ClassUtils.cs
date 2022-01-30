@@ -3,7 +3,7 @@
   / /   / __ \ | /| / /  |/ / _ \/ __/
  / /___/ /_/ / |/ |/ / /|  /  __/ /_  
 /_____/\____/|__/|__/_/ |_/\___/\__/  
-Simple Unity3D Solution ©2020 by Kuxii
+Simple Unity3D Solution ©2022 by Kuxii
 */
 using System;
 using System.Text;
