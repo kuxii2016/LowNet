@@ -34,8 +34,6 @@ namespace LowNet.ClientPackets
                 { (int)LowNetpacketOrder.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Read},
                 { (int)LowNetpacketOrder.LOWNET_DATA, LOWNET_DATA.Read},
                 { (int)LowNetpacketOrder.LOWNET_PLAYER, LOWNET_PLAYER.Read},
-                { (int)LowNetpacketOrder.LOWNET_OBJECT, LOWNET_OBJECT.Read},
-                { (int)LowNetpacketOrder.LOWNET_SMARTOBJECT_SYNCRO, LOWNET_SMARTOBJECT_SYNCRO.Read},
                 { (int)LowNetpacketOrder.LOWNET_CONNECT_UDP, LOWNET_CONNECT_UDP.Read},
             };
 
