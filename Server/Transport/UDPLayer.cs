@@ -184,7 +184,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 Playerstore.Instance.Clients[i].udp.SendData(store);
             }
@@ -197,7 +197,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(Client client, Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 if (Playerstore.Instance.Clients[i] != client)
                     Playerstore.Instance.Clients[i].udp.SendData(store);
@@ -221,7 +221,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(int client, Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 if (Playerstore.Instance.Clients[i].ClientId != client)
                     Playerstore.Instance.Clients[i].udp.SendData(store);

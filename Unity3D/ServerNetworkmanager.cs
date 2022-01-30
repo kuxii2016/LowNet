@@ -11,6 +11,7 @@ using LowNet.Server;
 using LowNet.Server.Data;
 using LowNet.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,11 @@ namespace LowNet.Unity3D
     /// </summary>
     public class ServerNetworkmanager : MonoBehaviour
     {
+        /// <summary>
+        /// Networkplayer Holder
+        /// </summary>
+        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+
         /// <summary>
         /// Server Instance
         /// </summary>
@@ -63,7 +69,7 @@ namespace LowNet.Unity3D
         /// Player Objects
         /// </summary>
         [Header("Player Spawnprefabs")]
-        public List<GameObject> spawnPrefabs;
+        public List<NetworkPlayer> spawnPrefabs;
 
         void Awake()
         {
@@ -75,12 +81,37 @@ namespace LowNet.Unity3D
         {
             server = new LowNetServer(Servername, Serverpasword, Serverport, MaxPlayer, true, Logging);
             server.OnServerlog += Serverlog;
+            server.ClientConnected += CreatePlayer;
+            server.ClientDisconnected += RemovePlayer;
             if (Autostart)
             {
                 server.Start();
             }
             else
                 Serverlog(this, new ServerlogMessage { LogType = Logmessage.Warning, LogMessage = ClassUtils.TryGetClass(this) + "()=>" + "Autostart is Disabled, Call 'NetworkManager.Startserver()'", TimeStamp = DateTime.Now, });
+        }
+
+        private void CreatePlayer(object sender, ClientConnectedEventArgs e)
+        {
+            Debug.Log("Connect Spawn Player: " + e.client.ClientId);
+            NetworkPlayer model = Instantiate(spawnPrefabs[e.client.Networkplayer.Unity3dModel]);
+            model.SetPlayer(e.client.ClientId, e.client.Networkplayer.Name, e.client.Networkplayer.PlayerPos, e.client.Networkplayer.PlayerRot);
+            model.Prefab = model.gameObject;
+            Player.Add(e.client.ClientId, model);
+        }
+
+        private void RemovePlayer(object sender, ClientDisconnectedEventArgs e)
+        {
+            int player = e.client.ClientId;
+            StartCoroutine(DestroyPlayer(player));
+        }
+
+        IEnumerator DestroyPlayer(int player)
+        {
+            NetworkPlayer p = Player[player];
+            Destroy(p.gameObject);
+            Player.Remove(p.PlayerId);
+            yield return null;
         }
 
         void Update()
@@ -94,6 +125,8 @@ namespace LowNet.Unity3D
             {
                 server.Stop();
                 server.OnServerlog -= Serverlog;
+                server.ClientConnected -= CreatePlayer;
+                server.ClientDisconnected -= RemovePlayer;
             }
         }
 
@@ -195,5 +228,6 @@ namespace LowNet.Unity3D
             NetworkManager.server.TCPLayer.SendAll(Client, store);
         }
         #endregion
+
     }
 }

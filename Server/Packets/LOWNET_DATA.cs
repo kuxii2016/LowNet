@@ -51,6 +51,7 @@ namespace LowNet.Server.Packets
                         return;
                     }
             }
+            client.CreatePlayer();
         }
 
         /// <summary>

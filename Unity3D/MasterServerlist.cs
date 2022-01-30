@@ -7,7 +7,6 @@ Simple Unity3D Solution ©2022 by Kuxii
 */
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -66,86 +65,92 @@ namespace LowNet.Unity3D
         /// </summary>
         [Header("Autoload List, when Build is Client")]
         public bool AutoloadServerliste = false;
-        /// <summary>
-        /// Server Id from this server
-        /// </summary>
-        private int ServerId;
-        /// <summary>
-        /// Failed Update
-        /// </summary>
-        private bool Error = false;
 
-        public void start()
+        public int MasterServerId = 0;
+        public int ResponsedMaster = -1;
+        public int Lasttested = 0;
+
+        void Start()
         {
-            if (AutoinsertServer && buildType == BuildType.Server)
-            {
-                StartCoroutine(InsertServer());
-                StartCoroutine(UpdateServer());
-            }
+            StartCoroutine(Registerserver());
         }
 
-        public IEnumerator InsertServer()
+        IEnumerator Registerserver()
         {
-            yield return new WaitForSeconds(10);
-            string Message = $"{ServerNetworkmanager.NetworkManager.Servername}|{ServerNetworkmanager.NetworkManager.ServerIP}|{ServerNetworkmanager.NetworkManager.Serverport}|{ServerNetworkmanager.NetworkManager.Serverpasword}|{ServerNetworkmanager.NetworkManager.MaxPlayer}|7";
-            SendData(1, Message);
+            yield return new WaitForSeconds(5);
+            string Message = $"{ServerNetworkmanager.NetworkManager.Servername}|{ServerNetworkmanager.NetworkManager.ServerIP}|{ServerNetworkmanager.NetworkManager.Serverport}|{ServerNetworkmanager.NetworkManager.Serverpasword}|{ServerNetworkmanager.NetworkManager.MaxPlayer}|8";
+            var reponse = StartCoroutine(SendMessage(0, Message, OnComplete));
         }
 
-        public IEnumerator UpdateServer()
+        IEnumerator Updateserver()
         {
-            yield return new WaitForSeconds(110);
-            if (!Error)
-            {
-                string Message = $"{ServerId}|{ServerNetworkmanager.NetworkManager.server.GetPlayer}|{ServerNetworkmanager.NetworkManager.Serverpasword}|";
-                SendData(2, Message);
-            }
-            else
-            {
-                StartCoroutine(InsertServer());
-            }
-            StartCoroutine(UpdateServer());
+            yield return new WaitForSecondsRealtime(2 * 50);
+            StartCoroutine(SendCheckserver());
+            StartCoroutine(Updateserver());
         }
 
-        public void SendData(int packetId, string text)
+        IEnumerator RemoveServer()
+        {
+            string Message = $"{MasterServerId}";
+            var reponse = StartCoroutine(SendMessage(3, Message, OnComplete));
+            yield return new WaitForSecondsRealtime(1);
+        }
+
+        IEnumerator SendCheckserver()
+        {
+            yield return new WaitForSecondsRealtime(1);
+            string Message = $"{MasterServerId}|{ServerNetworkmanager.NetworkManager.server.GetPlayer}|{ServerNetworkmanager.NetworkManager.Serverpasword}";
+            var reponse = StartCoroutine(SendMessage(2, Message, OnComplete));
+        }
+
+        public IEnumerator SendMessage(int packetId, string text, System.Action<int, string> callbackOnFinish)
         {
             try
             {
                 string message = $"{(uint)packetId}|{text}|<eof>";
                 byte[] sendbuf = Encoding.ASCII.GetBytes(message);
-                UdpClient client = new UdpClient();
+                var client = new UdpClient();
                 IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(Masterip), Masterport);
                 client.Connect(endpoint);
-                client.Client.SendTimeout = 800;
-                client.Client.ReceiveTimeout = 800;
-                try
-                {
-                    client.Send(sendbuf, sendbuf.Length);
-                }
-                catch (SocketException)
-                {
-                    Error = true;
-                    ServerId = -1;
-                }
-                try
-                {
-                    byte[] bytes = client.Receive(ref endpoint);
-                    string ServerMsg = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-                    string[] data = new string[1] { "" };
-                    data = ServerMsg.Split('|');
-                        ServerId = int.Parse(data[1]);
-                        Error = false;
-                }
-                catch (SocketException)
-                {
-                    Error = true;
-                    ServerId = -1;
-                }
-                client.Close();
+                client.Client.SendTimeout = 5000;
+                client.Client.ReceiveTimeout = 5000;
+                // send data
+                client.Send(sendbuf, sendbuf.Length);
+                byte[] bytes = client.Receive(ref endpoint);
+                var ServerMsg = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                callbackOnFinish(packetId, ServerMsg);
             }
             catch (Exception)
             {
-                Error = true;
-                ServerId = -1;
+            }
+
+            yield return null;
+        }
+
+        private void OnApplicationQuit()
+        {
+            StartCoroutine(RemoveServer());
+        }
+
+        public void OnComplete(int packetId, string value)
+        {
+            string[] data;
+            data = new string[] { "" };
+            data = value.Split('|');
+            if (value.Contains("Yes iam Live"))
+            {
+                Lasttested = 0;
+                StartCoroutine(Registerserver());
+            }
+            if (value.Contains("Server_Add"))
+            {
+                MasterServerId = int.Parse(data[1]);
+                StartCoroutine(Updateserver());
+                Debug.Log("Master Responsed");
+            }
+            if (value.Contains("OK"))
+            {
+                Debug.Log("Master Responsed");
             }
         }
     }

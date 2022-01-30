@@ -50,6 +50,7 @@ namespace LowNet.Gameclient.Packets
 
             GameClient.Instance.Log("Connected to: " + Servername + $" Current Player(s) {Player}/{Maxplayer} are Online", GameClient.Instance);
             GameClient.Instance.Debug("Server based on: " + Network, GameClient.Instance);
+            Send(session);
         }
 
         /// <summary>

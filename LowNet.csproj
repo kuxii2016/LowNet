@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\Kuxii\source\repos\LowNet\LowNet.xml</DocumentationFile>
+    <DocumentationFile>F:\Unity3D\LownetServerExample\Assets\Plugins\LowNet\LowNet.xml</DocumentationFile>
+    <OutputPath>F:\Unity3D\LownetServerExample\Assets\Plugins\LowNet\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,8 @@
   <ItemGroup>
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2021.2.4f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
 

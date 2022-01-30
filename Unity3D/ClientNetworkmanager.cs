@@ -21,6 +21,11 @@ namespace LowNet.Unity3D
     public class ClientNetworkmanager : MonoBehaviour
     {
         /// <summary>
+        /// Networkplayer Holder
+        /// </summary>
+        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+
+        /// <summary>
         /// Client Instance
         /// </summary>
         public static ClientNetworkmanager Networkmanager;
@@ -73,7 +78,7 @@ namespace LowNet.Unity3D
         /// Player Objects
         /// </summary>
         [Header("Player Spawnprefabs")]
-        public List<GameObject> spawnPrefabs;
+        public List<NetworkPlayer> spawnPrefabs;
 
         void Awake()
         {
@@ -147,9 +152,9 @@ namespace LowNet.Unity3D
 
         void OnApplicationQuit()
         {
+            Disconnect();
             try
             {
-                Disconnect();
                 Gameclient.StopListner();
             }
             catch { }
@@ -176,6 +181,32 @@ namespace LowNet.Unity3D
                     Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[LOG]</color> :: <color=#00ff1d>" + e.LogMessage + "</color>"));
                     break;
             }
+        }
+
+        /// <summary>
+        /// Create Clientside Playermodel, And Setflag is Own
+        /// </summary>
+        /// <param name="ModelId"></param>
+        /// <param name="PlayerId"></param>
+        /// <param name="Pos"></param>
+        /// <param name="Rot"></param>
+        /// <param name="Name"></param>
+        public static void SpawnPlayer(int ModelId, int PlayerId, Vector3 Pos, Quaternion Rot, string Name = "LowNetPlayer")
+        {
+            NetworkPlayer model = Instantiate(Networkmanager.spawnPrefabs[ModelId]);
+            model.SetPlayer(PlayerId, Name, Pos, Rot);
+            Player.Add(PlayerId, model);
+        }
+
+        /// <summary>
+        /// Remove Network Player
+        /// </summary>
+        /// <param name="PlayerId"></param>
+        public static void RemovePlayer(int PlayerId)
+        {
+            GameObject player = Player[PlayerId].gameObject;
+            Destroy(player);
+            Player.Remove(PlayerId);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace LowNet.Serverstore
             int playercount = 0;
             foreach (var item in Clients.Values)
             {
-                if (item.Session != null)
+                if (item.Session != null && item.Networkplayer != null)
                     playercount++;
             }
             return playercount;

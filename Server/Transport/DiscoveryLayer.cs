@@ -70,6 +70,7 @@ namespace LowNet.Transport
         /// </summary>
         public void Shutdown()
         {
+            IsRunning = false;
             if (IsRunning)
             {
                 Listner.Close();
@@ -106,26 +107,29 @@ namespace LowNet.Transport
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            if (IsRunning)
+            {
+                IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-            try
-            {
-                byte[] data = Listner.EndReceive(ar, ref clientEndPoint);
-                Listner.BeginReceive(ReceiveCallback, null);
-            }
-            catch (SocketException so)
-            {
-                Mainserver.Error("Failed Read Client Data: " + so.Message, this);
-                return;
-            }
-            catch (Exception ex)
-            {
-                Mainserver.Error("Failed Read Client Data: " + ex.Message, this);
-                return;
-            }
-            finally
-            {
-                Send(BuildResponse(), clientEndPoint);
+                try
+                {
+                    byte[] data = Listner.EndReceive(ar, ref clientEndPoint);
+                    Listner.BeginReceive(ReceiveCallback, null);
+                }
+                catch (SocketException so)
+                {
+                    Mainserver.Error("Failed Read Client Data: " + so.Message, this);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Mainserver.Error("Failed Read Client Data: " + ex.Message, this);
+                    return;
+                }
+                finally
+                {
+                    Send(BuildResponse(), clientEndPoint);
+                }
             }
         }
 

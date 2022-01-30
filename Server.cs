@@ -164,6 +164,7 @@ namespace LowNet.Server
             if (OnServerlog != null && Logging == Logsettings.Logging_Normal || Logging == Logsettings.Logging_Normal || Logging == Logsettings.Logging_Debug)
                 OnServerlog?.Invoke(this, new ServerlogMessage { LogType = Logmessage.Log, LogMessage = infos + "()=>" + Message, TimeStamp = DateTime.Now, });
         }
+
         /// <summary>
         /// Print Errormessage
         /// </summary>
@@ -178,6 +179,7 @@ namespace LowNet.Server
             if (OnServerlog != null && Logging == Logsettings.Logging_Normal || Logging == Logsettings.Logging_Error || Logging == Logsettings.Logging_Debug)
                 OnServerlog?.Invoke(this, new ServerlogMessage { LogType = Logmessage.Error, LogMessage = infos + "()=>" + Message, TimeStamp = DateTime.Now, });
         }
+
         /// <summary>
         /// Print Warning Message
         /// </summary>
@@ -192,6 +194,7 @@ namespace LowNet.Server
             if (OnServerlog != null && Logging == Logsettings.Logging_Normal || Logging == Logsettings.Logging_Warning || Logging == Logsettings.Logging_Debug)
                 OnServerlog?.Invoke(this, new ServerlogMessage { LogType = Logmessage.Warning, LogMessage = infos + "()=>" + Message, TimeStamp = DateTime.Now, });
         }
+
         /// <summary>
         /// Print Debug Message
         /// </summary>
@@ -206,6 +209,7 @@ namespace LowNet.Server
             if (OnServerlog != null && Logging == Logsettings.Logging_Debug)
                 OnServerlog?.Invoke(this, new ServerlogMessage { LogType = Logmessage.Debug, LogMessage = infos + "()=>" + Message, TimeStamp = DateTime.Now, });
         }
+
         /// <summary>
         /// Trigger Connect Event
         /// </summary>
@@ -214,6 +218,7 @@ namespace LowNet.Server
         {
             ClientConnected?.Invoke(this, new ClientConnectedEventArgs { client = client, session = client.Session, Connected = DateTime.Now, });
         }
+
         /// <summary>
         /// Trigger Disconnect Event
         /// </summary>

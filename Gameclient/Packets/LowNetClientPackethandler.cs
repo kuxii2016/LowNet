@@ -8,7 +8,6 @@ Simple Unity3D Solution ©2022 by Kuxii
 using LowNet.Gameclient;
 using LowNet.Gameclient.Packets;
 using LowNet.Packets;
-using System;
 using System.Collections.Generic;
 using static LowNet.Gameclient.GameClient;
 

@@ -65,7 +65,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 Playerstore.Instance.Clients[i].tcp.SendData(store);
             }
@@ -78,7 +78,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(Client client, Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 if (Playerstore.Instance.Clients[i] != client)
                     Playerstore.Instance.Clients[i].tcp.SendData(store);
@@ -102,7 +102,7 @@ namespace LowNet.Transport
         /// <param name="store"></param>
         public void SendAll(int clientId, Store store)
         {
-            for (int i = 0; i < Playerstore.Instance.Clients.Count; i++)
+            for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
                 if (Playerstore.Instance.Clients[i].ClientId != i)
                     Playerstore.Instance.Clients[i].tcp.SendData(store);
@@ -161,7 +161,7 @@ namespace LowNet.Transport
 
             for (int i = 1; i < Playerstore.Instance.Clients.Count; i++)
             {
-                if (Playerstore.Instance.Clients[i].tcp.Socket == null)
+                if (Playerstore.Instance.Clients[i].Session == null)
                 {
                     Playerstore.Instance.Clients[i].tcp.Connect(client);
                     return;

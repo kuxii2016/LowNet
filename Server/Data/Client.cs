@@ -7,11 +7,13 @@ Simple Unity3D Solution ©2022 by Kuxii
 */
 using LowNet.Data;
 using LowNet.Packets;
+using LowNet.Server.Packets;
 using LowNet.Unity3D;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using NetworkPlayer = LowNet.Data.NetworkPlayer;
 
 namespace LowNet.Server.Data
 {
@@ -31,6 +33,10 @@ namespace LowNet.Server.Data
         /// Get Client Session
         /// </summary>
         public Session Session { get; set; }
+        /// <summary>
+        /// Network Player
+        /// </summary>
+        public NetworkPlayer Networkplayer { get; set; }
         private readonly LowNetServer Mainserver;
         private static readonly int dataBufferSize = 4096;
         internal TCP tcp;
@@ -53,6 +59,7 @@ namespace LowNet.Server.Data
             Mainserver.Debug("Create Playerslot " + clientId, this);
         }
 
+        #region Transport Layer
         /// <summary>
         /// Client TCP Layer
         /// </summary>
@@ -117,7 +124,8 @@ namespace LowNet.Server.Data
                 finally
                 {
                     Sendresponse();
-                    client.Mainserver.InvokePlayerconnect(client);
+                    client.Networkplayer = new NetworkPlayer();
+                    client.Networkplayer.SetPlayer(ClientId);
                 }
             }
 
@@ -214,7 +222,11 @@ namespace LowNet.Server.Data
             /// </summary>
             public void Disconnect()
             {
-                Socket.Close();
+                try
+                {
+                    Socket.Close();
+                }
+                catch { }
                 stream = null;
                 receivedData = null;
                 receiveBuffer = null;
@@ -226,6 +238,7 @@ namespace LowNet.Server.Data
             /// </summary>
             public void Sendresponse()
             {
+                client.Mainserver.Log("Player Connected", this);
                 var store = new Store(LowNetpacketOrder.LOWNET_CONNECT);
                 store.PushAscii("LowNet");
                 store.PushInt(ClientId);
@@ -306,16 +319,47 @@ namespace LowNet.Server.Data
                 EndPoint = null;
             }
         }
+        #endregion
 
         /// <summary>
         /// Disconnect Client from Server
         /// </summary>
         public void Disconnect()
         {
-            Mainserver.InvokePlayerDisconnect(this);
-            Session = null;
-            tcp.Disconnect();
-            udp.Disconnect();
+            ThreadManager.ExecuteOnMainThread(() =>
+            {
+                tcp.Disconnect();
+                udp.Disconnect();
+                LOWNET_PLAYER.Send(Networkplayer, false, this);
+                Mainserver.InvokePlayerDisconnect(this);
+                Session = null;
+                Networkplayer = null;
+            });
+        }
+
+        public void CreatePlayer()
+        {
+            Mainserver.InvokePlayerconnect(this);
+            foreach (Client client in Mainserver.Player.Clients.Values)
+            {
+                if (client.Networkplayer != null)
+                {
+                    if (client.Networkplayer.PlayerId != ClientId)
+                    {
+                        //Spawnplayer.Send(id, _client.player);
+                        LOWNET_PLAYER.Create(client.Networkplayer, true, client);
+                    }
+                }
+            }
+
+            foreach (Client client in Mainserver.Player.Clients.Values)
+            {
+                if (client.Networkplayer != null)
+                {
+                    LOWNET_PLAYER.Create(client.Networkplayer, true, this);
+                    //Spawnplayer.Send(_client.id, player);
+                }
+            }
         }
     }
 }
