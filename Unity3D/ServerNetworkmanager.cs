@@ -1,233 +1,101 @@
-﻿/*  __                  _   __     __ 
-   / /   ____ _      __/ | / /__  / /_
-  / /   / __ \ | /| / /  |/ / _ \/ __/
- / /___/ /_/ / |/ |/ / /|  /  __/ /_  
-/_____/\____/|__/|__/_/ |_/\___/\__/  
-Simple Unity3D Solution ©2022 by Kuxii
-*/
-using LowNet.Data;
-using LowNet.Events;
+﻿using LowNet.Enums;
 using LowNet.Server;
-using LowNet.Server.Data;
-using LowNet.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace LowNet.Unity3D
 {
-    /// <summary>
-    /// Unity3d Server Networkmanager Component
-    /// </summary>
-    public class ServerNetworkmanager : MonoBehaviour
+    class ServerNetworkmanager : MonoBehaviour
     {
-        /// <summary>
-        /// Networkplayer Holder
-        /// </summary>
-        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
-
-        /// <summary>
-        /// Server Instance
-        /// </summary>
-        public LowNetServer server;
-        /// <summary>
-        /// Network Manager Instance
-        /// </summary>
-        public static ServerNetworkmanager NetworkManager { get; private set; }
-        /// <summary>
-        /// Server ServerIP
-        /// </summary>
+        public static ServerNetworkmanager Instance;
+        [Header("Server IPAdresse")]
         public string ServerIP = "127.0.0.1";
-        /// <summary>
-        /// Server Listenport
-        /// </summary>
-        public int Serverport = 4900;
-        /// <summary>
-        /// Server Name
-        /// </summary>
-        public string Servername = "LowNet Server";
-        /// <summary>
-        /// Server Password
-        /// </summary>
-        public string Serverpasword;
-        /// <summary>
-        /// Server Max Player Amount
-        /// </summary>
-        [Range(0, 500)]
-        public int MaxPlayer = 25;
-        /// <summary>
-        /// Autostart on Start from this Component
-        /// </summary>
+        [Header("Server Listenport")]
+        public int ServerPort = 4900;
+        [Header("Max Amount of Player"), Range(2,1000)]
+        public int Maxplayer = 50;
+        [Header("Serverlisten Name")]
+        public string ServerName = "LowNet-Server";
+        [Header("Server Password")]
+        public string ServerPassword = "";
+        [Header("Network Update Rate")]
+        public NetworkUpdate NetworkSpeed = NetworkUpdate.FixedUpdate;
+        [Header("Server Log Mode")]
+        public LogMode ServerLogging = LogMode.LogNormal;
+        [Header("Auto Start on Start")]
         public bool Autostart = false;
-        /// <summary>
-        /// Logmode Settings
-        /// </summary>
-        [Header("Server Logging Settings")]
-        public Logsettings Logging;
-        /// <summary>
-        /// Player Objects
-        /// </summary>
-        [Header("Player Spawnprefabs")]
-        public List<NetworkPlayer> spawnPrefabs;
+        public bool IsRunning = false;
+        public static Server.Server server;
 
         void Awake()
         {
-            if (NetworkManager == null)
-                NetworkManager = this;
+            if (Instance == null)
+                Instance = this;
+            else
+                Instance = this;
         }
 
         void Start()
         {
-            server = new LowNetServer(Servername, Serverpasword, Serverport, MaxPlayer, true, Logging);
-            server.OnServerlog += Serverlog;
-            server.ClientConnected += CreatePlayer;
-            server.ClientDisconnected += RemovePlayer;
-            if (Autostart)
+            server = new Server.Server(ServerPassword, ServerName, ServerIP, ServerPort, Maxplayer);
+            Server.Server.SetSettings(ServerLogging);
+
+            if (Autostart && server != null)
+                IsRunning = server.Startserver();
+        }
+
+        private void FixedUpdate()
+        {
+            if (NetworkSpeed == NetworkUpdate.FixedUpdate)
+                UpdateMain();
+        }
+
+        private void Update()
+        {
+            if (NetworkSpeed == NetworkUpdate.Update)
+                UpdateMain();
+        }
+
+        #region Threadmanager
+        private static readonly List<Action> executeOnMainThread = new List<Action>();
+        private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
+        private static bool actionToExecuteOnMainThread = false;
+
+        public static void ExecuteOnMainThread(Action _action)
+        {
+            if (_action == null)
             {
-                server.Start();
+                Console.WriteLine("No action to execute on main thread!");
+                return;
             }
-            else
-                Serverlog(this, new ServerlogMessage { LogType = Logmessage.Warning, LogMessage = ClassUtils.TryGetClass(this) + "()=>" + "Autostart is Disabled, Call 'NetworkManager.Startserver()'", TimeStamp = DateTime.Now, });
-        }
 
-        private void CreatePlayer(object sender, ClientConnectedEventArgs e)
-        {
-            Debug.Log("Connect Spawn Player: " + e.client.ClientId);
-            NetworkPlayer model = Instantiate(spawnPrefabs[e.client.Networkplayer.Unity3dModel]);
-            model.SetPlayer(e.client.ClientId, e.client.Networkplayer.Name, e.client.Networkplayer.PlayerPos, e.client.Networkplayer.PlayerRot);
-            model.Prefab = model.gameObject;
-            Player.Add(e.client.ClientId, model);
-        }
-
-        private void RemovePlayer(object sender, ClientDisconnectedEventArgs e)
-        {
-            int player = e.client.ClientId;
-            StartCoroutine(DestroyPlayer(player));
-        }
-
-        IEnumerator DestroyPlayer(int player)
-        {
-            NetworkPlayer p = Player[player];
-            Destroy(p.gameObject);
-            Player.Remove(p.PlayerId);
-            yield return null;
-        }
-
-        void Update()
-        {
-
-        }
-
-        void OnApplicationQuit()
-        {
-            if (server != null)
+            lock (executeOnMainThread)
             {
-                server.Stop();
-                server.OnServerlog -= Serverlog;
-                server.ClientConnected -= CreatePlayer;
-                server.ClientDisconnected -= RemovePlayer;
+                executeOnMainThread.Add(_action);
+                actionToExecuteOnMainThread = true;
             }
         }
 
-        private void Serverlog(object sender, ServerlogMessage e)
+        public static void UpdateMain()
         {
-            string now = e.TimeStamp.Millisecond.ToString("0.00");
-            switch (e.LogType)
+            if (actionToExecuteOnMainThread)
             {
-                case Logmessage.Debug:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[DEBUG]</color> :: <color=#005bff>" + e.LogMessage + "</color>"));
-                    break;
+                executeCopiedOnMainThread.Clear();
+                lock (executeOnMainThread)
+                {
+                    executeCopiedOnMainThread.AddRange(executeOnMainThread);
+                    executeOnMainThread.Clear();
+                    actionToExecuteOnMainThread = false;
+                }
 
-                case Logmessage.Warning:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[WARNING]</color> :: <color=#ffad00>" + e.LogMessage + "</color>"));
-                    break;
-
-                case Logmessage.Error:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[ERROR]</color> :: <color=#ff3000>" + e.LogMessage + "</color>"));
-                    break;
-                case Logmessage.Log:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[LOG]</color> :: <color=#00ff1d>" + e.LogMessage + "</color>"));
-                    break;
+                for (int i = 0; i < executeCopiedOnMainThread.Count; i++)
+                {
+                    executeCopiedOnMainThread[i]();
+                }
             }
-        }
-
-        #region UDP Sending
-        /// <summary>
-        /// Send UDP Data
-        /// </summary>
-        public static void SendUDP(Client client, Store store)
-        {
-            NetworkManager.server.UDPLayer.SendUDP(client, store);
-        }
-
-        /// <summary>
-        /// Send UDP Data to All
-        /// </summary>
-        public static void SendUDPAll(Store store)
-        {
-            NetworkManager.server.UDPLayer.SendAll(store);
-        }
-
-        /// <summary>
-        /// Send UDP Data to All but not on this Player
-        /// </summary>
-        public static void SendUDPAll(Client client, Store store)
-        {
-            NetworkManager.server.UDPLayer.SendAll(client, store);
         }
         #endregion
-
-        #region TCP Sending
-        /// <summary>
-        /// Send data only to Client
-        /// </summary>
-        /// <param name="client">Client</param>
-        /// <param name="store">Packet Store</param>
-        public static void SendTCP(Client client, Store store)
-        {
-            NetworkManager.server.TCPLayer.Send(client, store);
-        }
-
-        /// <summary>
-        /// Send data to All Clients
-        /// </summary>
-        /// <param name="store">Packet Store</param>
-        public static void SendTCPAll(Store store)
-        {
-            NetworkManager.server.TCPLayer.SendAll(store);
-        }
-
-        /// <summary>
-        /// Send data to all Clients only not this Client
-        /// </summary>
-        /// <param name="client">Client</param>
-        /// <param name="store">Packet Store</param>
-        public static void SendTCPAll(Client client, Store store)
-        {
-            NetworkManager.server.TCPLayer.SendAll(client, store);
-        }
-
-        /// <summary>
-        /// Send data only to Client
-        /// </summary>
-        /// <param name="Client">ClientId</param>
-        /// <param name="store">Packet Store</param>
-        public static void SendTCP(int Client, Store store)
-        {
-            NetworkManager.server.TCPLayer.Send(Client, store);
-        }
-
-        /// <summary>
-        /// Send data to all Clients only not this Client
-        /// </summary>
-        /// <param name="Client">ClientId</param>
-        /// <param name="store">Packet Store</param>
-        public static void SendTCPAll(int Client, Store store)
-        {
-            NetworkManager.server.TCPLayer.SendAll(Client, store);
-        }
-        #endregion
-
     }
 }

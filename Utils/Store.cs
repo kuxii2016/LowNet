@@ -1,31 +1,22 @@
-﻿/*  __                  _   __     __ 
-   / /   ____ _      __/ | / /__  / /_
-  / /   / __ \ | /| / /  |/ / _ \/ __/
- / /___/ /_/ / |/ |/ / /|  /  __/ /_  
-/_____/\____/|__/|__/_/ |_/\___/\__/  
-Simple Unity3D Solution ©2022 by Kuxii
-*/
-using LowNet.Packets;
-using LowNet.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 
-namespace LowNet.Data
+namespace LowNet.Utils
 {
     /// <summary>
-    /// Store is the Packet,
-    /// Read Data from here.
-    /// Or Add Data to Store and Send it
+    /// LowNet Packet
     /// </summary>
     public class Store : IDisposable
     {
+        #region Packet Private Propertys
         private List<byte> buffer;
         private byte[] readableBuffer;
         private int readPos;
+        #endregion
 
+        #region Store Create
         /// <summary>
         /// Create empty Store
         /// </summary>
@@ -36,27 +27,14 @@ namespace LowNet.Data
         }
 
         /// <summary>
-        /// Create Store with Packetenum
-        /// </summary>
-        /// <param name="value"></param>
-        public Store(LowNetpacketOrder value)
-        {
-            buffer = new List<byte>();
-            readPos = 0;
-            PushInt((int)value);
-            PushInt((int)ClassUtils.CalculateChecksum(((LowNetpacketOrder)value).ToString()));
-        }
-
-        /// <summary>
         /// Create Store with Id
         /// </summary>
-        /// <param name="value"></param>
-        public Store(int value)
+        /// <param name="_id"></param>
+        public Store(int _id)
         {
             buffer = new List<byte>();
             readPos = 0;
-            PushInt(value);
-            PushInt((int)ClassUtils.CalculateChecksum(((LowNetpacketOrder)value).ToString()));
+            PushInt(_id);
         }
 
         /// <summary>
@@ -69,6 +47,7 @@ namespace LowNet.Data
             readPos = 0;
             SetBytes(_data);
         }
+        #endregion
 
         #region Functions
         /// <summary>
@@ -131,66 +110,50 @@ namespace LowNet.Data
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushByte(byte _value)
-        {
-            buffer.Add(_value);
-        }
+        public void PushByte(byte _value)=>buffer.Add(_value);
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushBytes(byte[] _value)
-        {
-            buffer.AddRange(_value);
-        }
+        public void PushBytes(byte[] _value)=>buffer.AddRange(_value);
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushShort(short _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushShort(short _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushInt(int _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushInt(int _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushLong(long _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushLong(long _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushDouble(double _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushDouble(double _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushFloat(float _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushFloat(float _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushBool(bool _value)
-        {
-            buffer.AddRange(BitConverter.GetBytes(_value));
-        }
+        public void PushBool(bool _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -200,6 +163,7 @@ namespace LowNet.Data
             PushInt(_value.Length);
             buffer.AddRange(Encoding.ASCII.GetBytes(_value));
         }
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -210,6 +174,7 @@ namespace LowNet.Data
             PushFloat(_value.y);
             PushFloat(_value.z);
         }
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -219,6 +184,7 @@ namespace LowNet.Data
             PushFloat(_value.x);
             PushFloat(_value.y);
         }
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -230,6 +196,7 @@ namespace LowNet.Data
             PushFloat(_value.z);
             PushFloat(_value.w);
         }
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -241,6 +208,7 @@ namespace LowNet.Data
             PushFloat(_value.b);
             PushFloat(_value.a);
         }
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -251,16 +219,6 @@ namespace LowNet.Data
             PushByte(_value.g);
             PushByte(_value.b);
             PushByte(_value.a);
-        }
-        /// <summary>
-        /// Add data to the package
-        /// </summary>
-        /// <param name="_value"></param>
-        public void PushObject(object _value)
-        {
-            byte[] obj = RawSerializeEx(_value);
-            PushInt(obj.Length);
-            PushBytes(obj);
         }
         #endregion
 
@@ -283,7 +241,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'byte'!");
+                throw new Exception(@"LowNetStore::PopByte()=>file .\F:\Git\LowNet\Utils\Store.cs line:239");
             }
         }
         /// <summary>
@@ -305,7 +263,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'byte[]'!");
+                throw new Exception(@"LowNetStore::PopByte[]()=>file .\F:\Git\LowNet\Utils\Store.cs line:261");
             }
         }
         /// <summary>
@@ -326,7 +284,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'short'!");
+                throw new Exception(@"LowNetStore::PopShort()=>file .\F:\Git\LowNet\Utils\Store.cs line:282");
             }
         }
         /// <summary>
@@ -347,7 +305,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'int'!");
+                throw new Exception(@"LowNetStore::PopInt()=>file .\F:\Git\LowNet\Utils\Store.cs line:303");
             }
         }
         /// <summary>
@@ -368,7 +326,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'long'!");
+                throw new Exception(@"LowNetStore::PopLong()=>file .\F:\Git\LowNet\Utils\Store.cs line:324");
             }
         }
         /// <summary>
@@ -389,7 +347,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'double'!");
+                throw new Exception(@"LowNetStore::PopDouble()=>file .\F:\Git\LowNet\Utils\Store.cs line:345");
             }
         }
         /// <summary>
@@ -410,7 +368,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'float'!");
+                throw new Exception(@"LowNetStore::PopFloat()=>file .\F:\Git\LowNet\Utils\Store.cs line:366");
             }
         }
         /// <summary>
@@ -431,7 +389,7 @@ namespace LowNet.Data
             }
             else
             {
-                throw new Exception("Could not read value of type 'bool'!");
+                throw new Exception(@"LowNetStore::PopBool()=>file .\F:\Git\LowNet\Utils\Store.cs line:387");
             }
         }
         /// <summary>
@@ -453,7 +411,7 @@ namespace LowNet.Data
             }
             catch
             {
-                throw new Exception("Could not read value of type 'string'!");
+                throw new Exception(@"LowNetStore::PopAscii()=>file .\F:\Git\LowNet\Utils\Store.cs line:409");
             }
         }
         /// <summary>
@@ -463,16 +421,30 @@ namespace LowNet.Data
         /// <returns></returns>
         public Vector3 PopVector3(bool _moveReadPos = true)
         {
-            return new Vector3(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            try
+            {
+                return new Vector3(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            }
+            catch
+            {
+                throw new Exception(@"LowNetStore::PopVector3()=>file .\F:\Git\LowNet\Utils\Store.cs line:425");
+            }
         }
         /// <summary>
         /// Read data from packet
         /// </summary>
         /// <param name="_moveReadPos"></param>
         /// <returns></returns>
-        public Vector3 PopVector2(bool _moveReadPos = true)
+        public Vector2 PopVector2(bool _moveReadPos = true)
         {
-            return new Vector2(PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            try
+            {
+                return new Vector2(PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            }
+            catch
+            {
+                throw new Exception(@"LowNetStore::PopVector2()=>file .\F:\Git\LowNet\Utils\Store.cs line:441");
+            }
         }
         /// <summary>
         /// Read data from packet
@@ -481,7 +453,14 @@ namespace LowNet.Data
         /// <returns></returns>
         public Quaternion PopQuaternion(bool _moveReadPos = true)
         {
-            return new Quaternion(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            try
+            {
+                return new Quaternion(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            }
+            catch
+            {
+                throw new Exception(@"LowNetStore::PopQuaternion()=>file .\F:\Git\LowNet\Utils\Store.cs line:457");
+            }
         }
         /// <summary>
         /// Read data from packet
@@ -490,7 +469,14 @@ namespace LowNet.Data
         /// <returns></returns>
         public Color PopColor(bool _moveReadPos = true)
         {
-            return new Color(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            try
+            {
+                return new Color(PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos), PopFloat(_moveReadPos));
+            }
+            catch
+            {
+                throw new Exception(@"LowNetStore::PopColor()=>file .\F:\Git\LowNet\Utils\Store.cs line:473");
+            }
         }
         /// <summary>
         /// Read data from packet
@@ -499,28 +485,18 @@ namespace LowNet.Data
         /// <returns></returns>
         public Color PopColor32(bool _moveReadPos = true)
         {
-            return new Color32(PopByte(_moveReadPos), PopByte(_moveReadPos), PopByte(_moveReadPos), PopByte(_moveReadPos));
-        }
-        /// <summary>
-        /// Read data from packet
-        /// </summary>
-        /// <returns></returns>
-        public object PopObject(Type obj)
-        {
             try
             {
-                int _length = PopInt();
-                byte[] rawObj = PopBytes(_length);
-
-                return RawDeserializeEx(rawObj, obj);
+                return new Color32(PopByte(_moveReadPos), PopByte(_moveReadPos), PopByte(_moveReadPos), PopByte(_moveReadPos));
             }
             catch
             {
-                throw new Exception("Could not read value of type 'object'!");
+                throw new Exception(@"LowNetStore::PopColor32()=>file .\F:\Git\LowNet\Utils\Store.cs line:489");
             }
         }
         #endregion
 
+        #region Disposing
         private bool disposed = false;
         /// <summary>
         /// Dispose Store
@@ -536,7 +512,6 @@ namespace LowNet.Data
                     readableBuffer = null;
                     readPos = 0;
                 }
-
                 disposed = true;
             }
         }
@@ -548,39 +523,6 @@ namespace LowNet.Data
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        /// <summary>
-        /// Object Serializer
-        /// </summary>
-        /// <param name="rawdatas"></param>
-        /// <param name="anytype"></param>
-        /// <returns></returns>
-        public static object RawDeserializeEx(byte[] rawdatas, Type anytype)
-        {
-            int rawsize = Marshal.SizeOf(anytype);
-            if (rawsize > rawdatas.Length)
-                return null;
-            GCHandle handle = GCHandle.Alloc(rawdatas, GCHandleType.Pinned);
-            IntPtr buffer = handle.AddrOfPinnedObject();
-            object retobj = Marshal.PtrToStructure(buffer, anytype);
-            handle.Free();
-            return retobj;
-        }
-
-        /// <summary>
-        /// Object Serializer
-        /// </summary>
-        /// <param name="anything"></param>
-        /// <returns></returns>
-        public static byte[] RawSerializeEx(object anything)
-        {
-            int rawsize = Marshal.SizeOf(anything);
-            byte[] rawdatas = new byte[rawsize];
-            GCHandle handle = GCHandle.Alloc(rawdatas, GCHandleType.Pinned);
-            IntPtr buffer = handle.AddrOfPinnedObject();
-            Marshal.StructureToPtr(anything, buffer, false);
-            handle.Free();
-            return rawdatas;
-        }
+        #endregion
     }
 }

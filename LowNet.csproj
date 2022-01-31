@@ -2,17 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ApplicationIcon>GameServer.ico</ApplicationIcon>
+    <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>F:\Unity3D\LownetServerExample\Assets\Plugins\LowNet\LowNet.xml</DocumentationFile>
-    <OutputPath>F:\Unity3D\LownetServerExample\Assets\Plugins\LowNet\</OutputPath>
+    <OutputPath></OutputPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Gameclient\Clientstore\" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -20,6 +16,11 @@
       <Private>false</Private>
       <SpecificVersion>false</SpecificVersion>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Client\Packets\" />
+    <Folder Include="Server\Packets\" />
   </ItemGroup>
 
 </Project>

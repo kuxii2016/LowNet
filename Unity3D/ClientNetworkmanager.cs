@@ -1,212 +1,345 @@
-﻿/*  __                  _   __     __ 
-   / /   ____ _      __/ | / /__  / /_
-  / /   / __ \ | /| / /  |/ / _ \/ __/
- / /___/ /_/ / |/ |/ / /|  /  __/ /_  
-/_____/\____/|__/|__/_/ |_/\___/\__/  
-Simple Unity3D Solution ©2022 by Kuxii
-*/
-using LowNet.ClientPackets;
-using LowNet.Data;
-using LowNet.Events;
-using LowNet.Gameclient;
-using LowNet.Gameclient.Transport;
+﻿using LowNet.Enums;
+using LowNet.Utils;
+using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 
 namespace LowNet.Unity3D
 {
-    /// <summary>
-    /// Unity3d Client Network Managercomponent
-    /// </summary>
-    public class ClientNetworkmanager : MonoBehaviour
+    class ClientNetworkmanager : MonoBehaviour
     {
-        /// <summary>
-        /// Networkplayer Holder
-        /// </summary>
-        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+        public static ClientNetworkmanager Instance { get; private set; }
+        [Header("Server IPAdresse")]
+        public string ServerIP = "127.0.0.1";
+        [Header("Server Listenport")]
+        public int ServerPort = 4900;
+        [Header("Server Password")]
+        public string ServerPassword = "";
+        [Header("Network Update Rate")]
+        public NetworkUpdate NetworkSpeed = NetworkUpdate.Update;
+        [Header("Server Log Mode")]
+        public LogMode ServerLogging = LogMode.LogNormal;
+        public bool AutoConnect = false;
+        [HideInInspector]public TCP tcp;
+        [HideInInspector] public UDP udp;
 
         /// <summary>
-        /// Client Instance
+        /// On Incomming Packet
         /// </summary>
-        public static ClientNetworkmanager Networkmanager;
-        private GameClient Gameclient;
+        /// <param name="store"></param>
+        public delegate void PacketHandler(Store store);
         /// <summary>
-        /// Server IP to Connect
+        /// Regestrierte Packets
         /// </summary>
-        [Header("Server IpAdress to Connect"), Tooltip("For Local you can use 'localhost'")]
-        public string IPAdresse = "localhost";
-        /// <summary>
-        /// Server Port
-        /// </summary>
-        [Header("Server Listen Port")]
-        public int Serverport = 4900;
-        /// <summary>
-        /// Server Password if not empty when Need to Connect
-        /// </summary>
-        [Header("Server Password"), Tooltip("Set this before you Connect to Server")]
-        public string Serverpassword;
-        /// <summary>
-        /// Add Client Timeout
-        /// </summary>
-        [Range(0, 8500), Header("Send/Receive Timeout")]
-        public int Timeout = 800;
-        /// <summary>
-        /// Client ConnectionId
-        /// </summary>
-        public int ConnectionId = -1;
-        /// <summary>
-        /// Autoconnect to Server on Start
-        /// </summary>
-        [Header("Autoconnect to Server"), Tooltip("When you have 2 Different Projects and No Masterserver List so you can Use this to Connect Client on Start")]
-        public bool Autoconnect = false;
-        /// <summary>
-        /// Only Readable if Player Connected to Server
-        /// </summary>
-        [Header("Indicator is Client Connected")]
-        public bool IsConnected = false;
-        /// <summary>
-        /// Editor Quick Connector
-        /// </summary>
-        [Header("Connect to Server if True"), Tooltip("Can use in the Editor for an Quick Connect")]
-        public bool Connect = false;
-        /// <summary>
-        /// Define Client logging Mode
-        /// </summary>
-        [Header("Client Logging Mode")]
-        public Logsettings Logging = Logsettings.Logging_Normal;
-        /// <summary>
-        /// Player Objects
-        /// </summary>
-        [Header("Player Spawnprefabs")]
-        public List<NetworkPlayer> spawnPrefabs;
+        public static Dictionary<int, PacketHandler> Packets;
 
         void Awake()
         {
-            if (Networkmanager == null)
-                Networkmanager = this;
+            if (Instance == null)
+                Instance = this;
+            else
+                Instance = this;
         }
 
         void Start()
         {
-            Gameclient = new GameClient(Logging);
-            Gameclient.OnClientog += Clientlog;
-
-            Gameclient.discoveryLayer = new DiscoveryLayer(Gameclient);
-            Gameclient.discoveryLayer.StartDiscovery();
-            LowNetClientPackethandler.InitPackets(Gameclient);
-            if (Autoconnect)
-                ConnectServer();
-        }
-
-        void Update()
-        {
-            if (Connect)
+            if (AutoConnect)
             {
-                Connect = false;
-                ConnectServer();
+                ConnectToServer();
             }
         }
 
-        void LateUpdate()
+        private void FixedUpdate()
         {
-            if (Gameclient != null)
+            if (NetworkSpeed == NetworkUpdate.FixedUpdate)
+                UpdateMain();
+        }
+
+        private void Update()
+        {
+            if (NetworkSpeed == NetworkUpdate.Update)
+                UpdateMain();
+        }
+
+        #region Threadmanager
+        private static readonly List<Action> executeOnMainThread = new List<Action>();
+        private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
+        private static bool actionToExecuteOnMainThread = false;
+
+        public static void ExecuteOnMainThread(Action _action)
+        {
+            if (_action == null)
             {
-                ConnectionId = Gameclient.GetConnectionId;
-                IsConnected = Gameclient.isConnected;
-            }
-
-        }
-
-        /// <summary>
-        /// Set Server Connection to Client
-        /// </summary>
-        /// <param name="ServerIP"></param>
-        /// <param name="ServerPort"></param>
-        /// <param name="ServerPassword"></param>
-        public void SetConnection(string ServerIP, int ServerPort, string ServerPassword)
-        {
-            IPAdresse = ServerIP;
-            Serverport = ServerPort;
-            Serverpassword = ServerPassword;
-        }
-
-        /// <summary>
-        /// Connect the Client to Server
-        /// </summary>
-        public void ConnectServer()
-        {
-            if (Gameclient == null)
+                Console.WriteLine("No action to execute on main thread!");
                 return;
-
-            Gameclient.Connect(IPAdresse, Serverport, Serverpassword, Timeout);
-        }
-
-        /// <summary>
-        /// Disconnect Gameclient from Server
-        /// </summary>
-        public void Disconnect()
-        {
-            if (Gameclient != null)
-                Gameclient.Disconnect();
-        }
-
-        void OnApplicationQuit()
-        {
-            Disconnect();
-            try
-            {
-                Gameclient.StopListner();
             }
-            catch { }
-            Gameclient.OnClientog -= Clientlog;
-        }
 
-        private void Clientlog(object sender, ServerlogMessage e)
-        {
-            string now = e.TimeStamp.Millisecond.ToString("0.00");
-            switch (e.LogType)
+            lock (executeOnMainThread)
             {
-                case Logmessage.Debug:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[DEBUG]</color> :: <color=#005bff>" + e.LogMessage + "</color>"));
-                    break;
-
-                case Logmessage.Warning:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[WARNING]</color> :: <color=#ffad00>" + e.LogMessage + "</color>"));
-                    break;
-
-                case Logmessage.Error:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[ERROR]</color> :: <color=#ff3000>" + e.LogMessage + "</color>"));
-                    break;
-                case Logmessage.Log:
-                    Debug.Log(string.Format("<color=#c5ff00>[" + now + "]</color><color=#0083ff>[LOG]</color> :: <color=#00ff1d>" + e.LogMessage + "</color>"));
-                    break;
+                executeOnMainThread.Add(_action);
+                actionToExecuteOnMainThread = true;
             }
         }
 
-        /// <summary>
-        /// Create Clientside Playermodel, And Setflag is Own
-        /// </summary>
-        /// <param name="ModelId"></param>
-        /// <param name="PlayerId"></param>
-        /// <param name="Pos"></param>
-        /// <param name="Rot"></param>
-        /// <param name="Name"></param>
-        public static void SpawnPlayer(int ModelId, int PlayerId, Vector3 Pos, Quaternion Rot, string Name = "LowNetPlayer")
+        public static void UpdateMain()
         {
-            NetworkPlayer model = Instantiate(Networkmanager.spawnPrefabs[ModelId]);
-            model.SetPlayer(PlayerId, Name, Pos, Rot);
-            Player.Add(PlayerId, model);
+            if (actionToExecuteOnMainThread)
+            {
+                executeCopiedOnMainThread.Clear();
+                lock (executeOnMainThread)
+                {
+                    executeCopiedOnMainThread.AddRange(executeOnMainThread);
+                    executeOnMainThread.Clear();
+                    actionToExecuteOnMainThread = false;
+                }
+
+                for (int i = 0; i < executeCopiedOnMainThread.Count; i++)
+                {
+                    executeCopiedOnMainThread[i]();
+                }
+            }
+        }
+        #endregion
+
+        #region Networking
+        public const int dataBufferSize = 4096;
+        [Header("My Player Connection Id")]
+        public int ConnectionId = 0;
+        private bool isConnected = false;
+
+        public class TCP
+        {
+            public TcpClient socket;
+
+            private NetworkStream stream;
+            private Store receivedData;
+            private byte[] receiveBuffer;
+
+            public void Connect()
+            {
+                socket = new TcpClient
+                {
+                    ReceiveBufferSize = dataBufferSize,
+                    SendBufferSize = dataBufferSize
+                };
+
+                receiveBuffer = new byte[dataBufferSize];
+                socket.BeginConnect(Instance.ServerIP, Instance.ServerPort, ConnectCallback, socket);
+            }
+
+            private void ConnectCallback(IAsyncResult result)
+            {
+                socket.EndConnect(result);
+                if (!socket.Connected)
+                {
+                    return;
+                }
+
+                stream = socket.GetStream();
+                receivedData = new Store();
+                stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
+            }
+
+            public void SendData(Store store)
+            {
+                try
+                {
+                    if (socket != null)
+                    {
+                        stream.BeginWrite(store.ToArray, 0, store.Length, null, null);
+                    }
+                }
+                catch (Exception _ex)
+                {
+                }
+            }
+
+            private void ReceiveCallback(IAsyncResult result)
+            {
+                try
+                {
+                    int byteLength = stream.EndRead(result);
+                    if (byteLength <= 0)
+                    {
+                        Instance.Disconnect();
+                        return;
+                    }
+
+                    byte[] data = new byte[byteLength];
+                    Array.Copy(receiveBuffer, data, byteLength);
+
+                    receivedData.Reset(HandleData(data));
+                    stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
+                }
+                catch
+                {
+                    Disconnect();
+                }
+            }
+
+            private bool HandleData(byte[] data)
+            {
+                int packetLength = 0;
+
+                receivedData.SetBytes(data);
+
+                if (receivedData.UnreadLength >= 4)
+                {
+                    packetLength = receivedData.PopInt();
+                    if (packetLength <= 0)
+                    {
+                        return true;
+                    }
+                }
+
+                while (packetLength > 0 && packetLength <= receivedData.UnreadLength)
+                {
+                    byte[] packetBytes = receivedData.PopBytes(packetLength);
+                    ExecuteOnMainThread(() =>
+                    {
+                        using (Store packet = new Store(packetBytes))
+                        {
+                            int packetId = packet.PopInt();
+                            Packets[packetId](packet);
+                        }
+                    });
+
+                    packetLength = 0;
+                    if (receivedData.UnreadLength >= 4)
+                    {
+                        packetLength = receivedData.PopInt();
+                        if (packetLength <= 0)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if (packetLength <= 1)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            private void Disconnect()
+            {
+                Instance.Disconnect();
+                stream = null;
+                receivedData = null;
+                receiveBuffer = null;
+                socket = null;
+            }
         }
 
-        /// <summary>
-        /// Remove Network Player
-        /// </summary>
-        /// <param name="PlayerId"></param>
-        public static void RemovePlayer(int PlayerId)
+        public class UDP
         {
-            GameObject player = Player[PlayerId].gameObject;
-            Destroy(player);
-            Player.Remove(PlayerId);
+            public UdpClient socket;
+            public IPEndPoint endPoint;
+
+            public UDP()
+            {
+                endPoint = new IPEndPoint(IPAddress.Parse(Instance.ServerIP), Instance.ServerPort);
+            }
+
+            public void Connect(int _localPort)
+            {
+                socket = new UdpClient(_localPort);
+                socket.Connect(endPoint);
+                socket.BeginReceive(ReceiveCallback, null);
+
+                using (Store store = new Store())
+                {
+                    SendData(store);
+                }
+            }
+
+            public void SendData(Store store)
+            {
+                try
+                {
+                    store.InsertInt(Instance.ConnectionId);
+                    if (socket != null)
+                    {
+                        socket.BeginSend(store.ToArray, store.Length, null, null);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            private void ReceiveCallback(IAsyncResult result)
+            {
+                try
+                {
+                    byte[] data = socket.EndReceive(result, ref endPoint);
+                    socket.BeginReceive(ReceiveCallback, null);
+
+                    if (data.Length < 4)
+                    {
+                        Instance.Disconnect();
+                        return;
+                    }
+
+                    HandleData(data);
+                }
+                catch
+                {
+                    Disconnect();
+                }
+            }
+
+            private void HandleData(byte[] data)
+            {
+                using (Store store = new Store(data))
+                {
+                    int packetLength = store.PopInt();
+                    data = store.PopBytes(packetLength);
+                }
+
+                ExecuteOnMainThread(() =>
+                {
+                    using (Store store = new Store(data))
+                    {
+                        int packetId = store.PopInt();
+                        Packets[packetId](store);
+                    }
+                });
+            }
+
+            private void Disconnect()
+            {
+                Instance.Disconnect();
+
+                endPoint = null;
+                socket = null;
+            }
         }
+
+        private void Disconnect()
+        {
+            if (isConnected)
+            {
+                isConnected = false;
+                tcp.socket.Close();
+                udp.socket.Close();
+
+                Debug.Log("Disconnected from server.");
+            }
+        }
+
+        public void ConnectToServer()
+        {
+            tcp = new TCP();
+            udp = new UDP();
+            isConnected = true;
+            tcp.Connect();
+        }
+        #endregion
     }
 }
