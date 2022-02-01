@@ -8,7 +8,21 @@ namespace LowNet.Server.Packets
     {
         internal static void Readpacket(Client client, Store store)
         {
-            throw new NotImplementedException();
+            string guid = store.PopAscii();
+            int id = store.PopInt();
+            if (id != client.Connectionid)
+                return;
+            byte order = store.PopByte();
+            int count = store.PopInt();
+            switch (order)
+            {
+                case 0:
+                    client.SendPlayers();
+                    break;
+                case 1:
+                    client.SendObjeckt();
+                    break;
+            }
         }
 
         internal static void SendPacket(Client client)

@@ -131,17 +131,14 @@ namespace LowNet.Unity3D
         private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
         private static bool actionToExecuteOnMainThread = false;
 
-        public static void ExecuteOnMainThread(Action _action)
+        public static void ExecuteOnMainThread(Action action)
         {
-            if (_action == null)
-            {
-                Console.WriteLine("No action to execute on main thread!");
+            if (action == null)
                 return;
-            }
 
             lock (executeOnMainThread)
             {
-                executeOnMainThread.Add(_action);
+                executeOnMainThread.Add(action);
                 actionToExecuteOnMainThread = true;
             }
         }
