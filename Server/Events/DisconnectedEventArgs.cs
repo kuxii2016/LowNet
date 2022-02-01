@@ -11,10 +11,12 @@ namespace LowNet.Server.Events
         /// Trigger Client
         /// </summary>
         public Client Client;
+
         /// <summary>
-        /// Message 
+        /// Message
         /// </summary>
         public string Message;
+
         /// <summary>
         /// Raising time
         /// </summary>

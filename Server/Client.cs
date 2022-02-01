@@ -1,4 +1,5 @@
-﻿using LowNet.Server.Transport;
+﻿using LowNet.Server.Packets;
+using LowNet.Server.Transport;
 using LowNet.Unity3D;
 using LowNet.Utils;
 using System;
@@ -12,13 +13,35 @@ namespace LowNet.Server
     /// </summary>
     public class Client
     {
-        const int BufferSize = 4069;
+        #region Public
+
+        private static DateTime LastPacket { get; set; }
+
+        /// <summary>
+        /// Connection GUID
+        /// </summary>
+        public string ConnectionGuid { get; set; }
+
+        /// <summary>
+        /// Playername
+        /// </summary>
+        public string PlayerName { get; set; }
+
+        #endregion Public
+
+        #region Private
+
+        private const int BufferSize = 4069;
+
         /// <summary>
         /// Get Client Id
         /// </summary>
         public int Connectionid { get; private set; }
+
         internal TCP Tcp;
         internal UDP Udp;
+
+        #endregion Private
 
         /// <summary>
         /// Create new Client
@@ -53,7 +76,7 @@ namespace LowNet.Server
                 Received = new Store();
                 ReceivedBytes = new byte[BufferSize];
                 Stream.BeginRead(ReceivedBytes, 0, BufferSize, EndRead, null);
-
+                LOWNET_CONNECT.SendPacket(Server.Clients[ClientId]);
                 Server.Log("Player: " + ClientId + " Joint the Game", Server.Instance);
             }
 
@@ -74,6 +97,7 @@ namespace LowNet.Server
 
             private void EndRead(IAsyncResult ar)
             {
+                LastPacket = DateTime.Now;
                 try
                 {
                     int bytes = Stream.EndRead(ar);
@@ -170,6 +194,7 @@ namespace LowNet.Server
 
             public void ReadPacket(Store store)
             {
+                LastPacket = DateTime.Now;
                 int Lenght = store.PopInt();
                 byte[] data = store.PopBytes(Lenght);
 
@@ -209,7 +234,6 @@ namespace LowNet.Server
         /// </summary>
         public void SendPlayers()
         {
-
         }
 
         /// <summary>
@@ -217,7 +241,6 @@ namespace LowNet.Server
         /// </summary>
         public void SendObjeckt()
         {
-
         }
     }
 }

@@ -11,6 +11,7 @@ namespace LowNet.Server.Transport
         {
             Start(Port);
         }
+
         private static bool isRunning = false;
 
         internal static UdpClient Listener;

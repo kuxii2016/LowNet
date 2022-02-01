@@ -11,12 +11,15 @@ namespace LowNet.Utils
     public class Store : IDisposable
     {
         #region Packet Private Propertys
+
         private List<byte> buffer;
         private byte[] readableBuffer;
         private int readPos;
-        #endregion
+
+        #endregion Packet Private Propertys
 
         #region Store Create
+
         /// <summary>
         /// Create empty Store
         /// </summary>
@@ -47,9 +50,11 @@ namespace LowNet.Utils
             readPos = 0;
             SetBytes(_data);
         }
-        #endregion
+
+        #endregion Store Create
 
         #region Functions
+
         /// <summary>
         /// Set Store Bytes
         /// </summary>
@@ -74,17 +79,20 @@ namespace LowNet.Utils
         /// <summary>
         /// Get Store as ByteArray
         /// </summary>
-        public byte[] ToArray { get { return readableBuffer = buffer.ToArray(); } }
+        public byte[] ToArray
+        { get { return readableBuffer = buffer.ToArray(); } }
 
         /// <summary>
         /// Get the Lenght of the Store
         /// </summary>
-        public int Length { get { return buffer.Count; } }
+        public int Length
+        { get { return buffer.Count; } }
 
         /// <summary>
         /// Get the Unread Lenght of the Store
         /// </summary>
-        public int UnreadLength { get { return Length - readPos; } }
+        public int UnreadLength
+        { get { return Length - readPos; } }
 
         /// <summary>
         /// Reset Store
@@ -103,9 +111,11 @@ namespace LowNet.Utils
                 readPos -= 4;
             }
         }
-        #endregion
+
+        #endregion Functions
 
         #region Write Data
+
         /// <summary>
         /// Add data to the package
         /// </summary>
@@ -220,9 +230,11 @@ namespace LowNet.Utils
             PushByte(_value.b);
             PushByte(_value.a);
         }
-        #endregion
+
+        #endregion Write Data
 
         #region Read Data
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -244,6 +256,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopByte()=>file .\F:\Git\LowNet\Utils\Store.cs line:239");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -266,6 +279,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopByte[]()=>file .\F:\Git\LowNet\Utils\Store.cs line:261");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -287,6 +301,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopShort()=>file .\F:\Git\LowNet\Utils\Store.cs line:282");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -308,6 +323,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopInt()=>file .\F:\Git\LowNet\Utils\Store.cs line:303");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -329,6 +345,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopLong()=>file .\F:\Git\LowNet\Utils\Store.cs line:324");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -350,6 +367,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopDouble()=>file .\F:\Git\LowNet\Utils\Store.cs line:345");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -371,6 +389,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopFloat()=>file .\F:\Git\LowNet\Utils\Store.cs line:366");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -392,6 +411,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopBool()=>file .\F:\Git\LowNet\Utils\Store.cs line:387");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -414,6 +434,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopAscii()=>file .\F:\Git\LowNet\Utils\Store.cs line:409");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -430,6 +451,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopVector3()=>file .\F:\Git\LowNet\Utils\Store.cs line:425");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -446,6 +468,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopVector2()=>file .\F:\Git\LowNet\Utils\Store.cs line:441");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -462,6 +485,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopQuaternion()=>file .\F:\Git\LowNet\Utils\Store.cs line:457");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -478,6 +502,7 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopColor()=>file .\F:\Git\LowNet\Utils\Store.cs line:473");
             }
         }
+
         /// <summary>
         /// Read data from packet
         /// </summary>
@@ -494,10 +519,13 @@ namespace LowNet.Utils
                 throw new Exception(@"LowNetStore::PopColor32()=>file .\F:\Git\LowNet\Utils\Store.cs line:489");
             }
         }
-        #endregion
+
+        #endregion Read Data
 
         #region Disposing
+
         private bool disposed = false;
+
         /// <summary>
         /// Dispose Store
         /// </summary>
@@ -515,6 +543,7 @@ namespace LowNet.Utils
                 disposed = true;
             }
         }
+
         /// <summary>
         /// Sispose Store
         /// </summary>
@@ -523,6 +552,7 @@ namespace LowNet.Utils
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion Disposing
     }
 }

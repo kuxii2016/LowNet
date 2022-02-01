@@ -2,8 +2,6 @@
 using LowNet.Unity3D;
 using LowNet.Utils;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LowNet.ClientPackets
 {
@@ -26,6 +24,8 @@ namespace LowNet.ClientPackets
             if (serverpassword != ClientNetworkmanager.Instance.ServerPassword)
             {
                 Client.Disconnect();
+                if (NetworkUIManager.Instance != null && NetworkUIManager.Instance.OnEnterserverPassword != null)
+                    NetworkUIManager.Instance.OnEnterserverPassword.gameObject.SetActive(true);
                 Client.Log("Invalid Password! Disconnect from Server.", LogType.LogError);
                 return;
             }
@@ -39,6 +39,8 @@ namespace LowNet.ClientPackets
             }
             else
             {
+                if (NetworkUIManager.Instance != null && NetworkUIManager.Instance.OnEnterplayername != null)
+                    NetworkUIManager.Instance.OnEnterplayername.gameObject.SetActive(true);
                 Client.Log("Empty Playername, Call Send packet Self from 'LOWNET_CONNECT' Packet!", LogType.LogWarning);
             }
         }

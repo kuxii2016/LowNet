@@ -6,29 +6,38 @@ using UnityEngine;
 
 namespace LowNet.Unity3D
 {
-    class ServerNetworkmanager : MonoBehaviour
+    internal class ServerNetworkmanager : MonoBehaviour
     {
         public static ServerNetworkmanager Instance;
+
         [Header("Server IPAdresse")]
         public string ServerIP = "127.0.0.1";
+
         [Header("Server Listenport")]
         public int ServerPort = 4900;
+
         [Header("Max Amount of Player"), Range(2, 1000)]
         public int Maxplayer = 50;
+
         [Header("Serverlisten Name")]
         public string ServerName = "LowNet-Server";
+
         [Header("Server Password")]
         public string ServerPassword = "";
+
         [Header("Network Update Rate")]
         public NetworkUpdate NetworkSpeed = NetworkUpdate.FixedUpdate;
+
         [Header("Server Log Mode")]
         public LogMode ServerLogging = LogMode.LogNormal;
+
         [Header("Auto Start on Start")]
         public bool Autostart = false;
+
         public bool IsRunning = false;
         public static Server.Server server;
 
-        void Awake()
+        private void Awake()
         {
             if (Instance == null)
                 Instance = this;
@@ -36,7 +45,7 @@ namespace LowNet.Unity3D
                 Instance = this;
         }
 
-        void Start()
+        private void Start()
         {
             server = new Server.Server(ServerPassword, ServerName, ServerIP, ServerPort, Maxplayer);
             Server.Server.SetSettings(ServerLogging);
@@ -55,12 +64,15 @@ namespace LowNet.Unity3D
                 case Enums.LogType.LogDebug:
                     Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#0083ff>[DEBUG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
+
                 case Enums.LogType.LogNormal:
                     Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#00ff23>[LOG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
+
                 case Enums.LogType.LogWarning:
                     Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}]</color><color=#ffa200>[WARNING]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
+
                 case Enums.LogType.LogError:
                     Debug.LogError(string.Format($"<color=#c5ff00>[{now}]</color><color=#ff0000>[ERROR]</color><color=#818181>{e.ClassInfo}::{e.Message}, {e.Exception}</color>"));
                     break;
@@ -89,7 +101,7 @@ namespace LowNet.Unity3D
                 UpdateMain();
         }
 
-        void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             server.ConnectedEvent -= OnConnect;
             server.DisconnectedEvent -= OnDisconnect;
@@ -97,6 +109,7 @@ namespace LowNet.Unity3D
         }
 
         #region Threadmanager
+
         private static readonly List<Action> executeOnMainThread = new List<Action>();
         private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
         private static bool actionToExecuteOnMainThread = false;
@@ -134,6 +147,7 @@ namespace LowNet.Unity3D
                 }
             }
         }
-        #endregion
+
+        #endregion Threadmanager
     }
 }

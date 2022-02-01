@@ -12,18 +12,22 @@ namespace LowNet.Server.Events
         /// Type of Message
         /// </summary>
         public LogType Type = LogType.LogDebug;
+
         /// <summary>
         /// Message Self
         /// </summary>
         public string Message = null;
+
         /// <summary>
         /// On Error with More Infos
         /// </summary>
         public string Exception = null;
+
         /// <summary>
         /// Class was Trigger
         /// </summary>
         public string ClassInfo = null;
+
         /// <summary>
         /// Timestamp on Raise
         /// </summary>

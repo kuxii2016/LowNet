@@ -1,14 +1,15 @@
-﻿using LowNet.Enums;
+﻿using LowNet.ClientPackets;
+using LowNet.Enums;
 using LowNet.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
-using UnityEngine;
-using System.Collections;
-using System.Text;
 using System.Net.NetworkInformation;
-using LowNet.ClientPackets;
+using System.Net.Sockets;
+using System.Text;
+using UnityEngine;
+using static LowNet.Unity3D.ClientNetworkmanager;
 
 namespace LowNet.Unity3D
 {
@@ -21,49 +22,59 @@ namespace LowNet.Unity3D
         /// Networkmanager Instance
         /// </summary>
         public static ClientNetworkmanager Instance { get; private set; }
+
         /// <summary>
         /// IPAdresse who the Client Connect
         /// </summary>
         [Header("Server IPAdresse")]
         public string ServerIP = "127.0.0.1";
+
         /// <summary>
         /// Server Port
         /// </summary>
         [Header("Server Listenport")]
         public int ServerPort = 4900;
+
         /// <summary>
         /// Server Password need for Connection
         /// </summary>
         [Header("Server Password")]
         public string ServerPassword = "";
+
         /// <summary>
         /// Network Worker Update rate
         /// </summary>
         [Header("Network Update Rate")]
         public NetworkUpdate NetworkSpeed = NetworkUpdate.Update;
+
         /// <summary>
         /// Client Logging Mode
         /// </summary>
         [Header("Server Log Mode")]
         public LogMode ServerLogging = LogMode.LogNormal;
+
         /// <summary>
         /// Auto Connect on Start
         /// </summary>
         [Header("Auto Connect to Server on Start")]
         public bool AutoConnect = false;
+
         /// <summary>
         /// Playername from this Player
         /// </summary>
         [Header("Client Playername")]
         public string Playername = "LowNetplayer";
+
         /// <summary>
         /// Client TCP-Layer
         /// </summary>
         internal TCP tcp;
+
         /// <summary>
         /// Client UDP-Layer
         /// </summary>
         internal UDP udp;
+
         /// <summary>
         /// Round Trip Time to Server
         /// </summary>
@@ -74,13 +85,15 @@ namespace LowNet.Unity3D
         /// </summary>
         /// <param name="store"></param>
         public delegate void PacketHandler(Store store);
+
         /// <summary>
         /// Regestrierte Packets
         /// </summary>
         public static Dictionary<int, PacketHandler> Packets;
 
         #region Unity3d Events
-        void Awake()
+
+        private void Awake()
         {
             if (Instance == null)
                 Instance = this;
@@ -88,8 +101,9 @@ namespace LowNet.Unity3D
                 Instance = this;
         }
 
-        void Start()
+        private void Start()
         {
+            InitPackets();
             if (AutoConnect)
             {
                 ConnectToServer();
@@ -108,9 +122,11 @@ namespace LowNet.Unity3D
             if (NetworkSpeed == NetworkUpdate.Update)
                 UpdateMain();
         }
-        #endregion
+
+        #endregion Unity3d Events
 
         #region Threadmanager
+
         private static readonly List<Action> executeOnMainThread = new List<Action>();
         private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
         private static bool actionToExecuteOnMainThread = false;
@@ -148,18 +164,22 @@ namespace LowNet.Unity3D
                 }
             }
         }
-        #endregion
+
+        #endregion Threadmanager
 
         #region Networking
+
         /// <summary>
         /// Packet buffer
         /// </summary>
         private const int dataBufferSize = 4096;
+
         /// <summary>
         /// Client ConnectionId
         /// </summary>
         [Header("My Player Connection Id")]
         public int ConnectionId = 0;
+
         internal bool isConnected = false;
 
         internal class TCP
@@ -382,11 +402,13 @@ namespace LowNet.Unity3D
             {
                 isConnected = false;
                 tcp.socket.Close();
-                udp.socket.Close();
+                if (udp.socket != null)
+                    udp.socket.Close();
 
                 Debug.Log("Disconnected from server.");
             }
         }
+
         /// <summary>
         /// Connect Client to Server
         /// </summary>
@@ -397,7 +419,8 @@ namespace LowNet.Unity3D
             isConnected = true;
             tcp.Connect();
         }
-        #endregion
+
+        #endregion Networking
 
         /// <summary>
         /// Get Client RTT Time
@@ -443,8 +466,10 @@ namespace LowNet.Unity3D
         {
             Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
             {
-                {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket }
+                {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
+                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket }
             };
+            Packets = packets;
         }
     }
 
@@ -457,49 +482,63 @@ namespace LowNet.Unity3D
         /// Send Data to Server over UDP-Layer
         /// </summary>
         public static void SendUDP(Store store) => ClientNetworkmanager.Instance.udp.SendData(store);
+
         /// <summary>
         /// Send Data to Server over TCP-Layer
         /// </summary>
         public static void SendTCP(Store store) => ClientNetworkmanager.Instance.tcp.SendData(store);
+
         /// <summary>
         /// Disconnect client from Server
         /// </summary>
         public static void Disconnect() => ClientNetworkmanager.Instance.Disconnect();
+
         /// <summary>
         /// Get PlayerId
         /// </summary>
         /// <returns></returns>
-        public static int GetPlayerId { get { return ClientNetworkmanager.Instance.ConnectionId; } }
+        public static int GetPlayerId
+        { get { return ClientNetworkmanager.Instance.ConnectionId; } }
+
         /// <summary>
         /// Get Round Trip Time
         /// </summary>
         /// <returns></returns>
-        public static long GetRTT { get { return ClientNetworkmanager.Instance.RTT; } }
+        public static long GetRTT
+        { get { return ClientNetworkmanager.Instance.RTT; } }
+
         /// <summary>
         /// Get Playername
         /// </summary>
         /// <returns></returns>
-        public static string GetPlayername { get { return ClientNetworkmanager.Instance.Playername; } }
+        public static string GetPlayername
+        { get { return ClientNetworkmanager.Instance.Playername; } }
+
         /// <summary>
         /// Set Serverpasswort to Client
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
         public static string SetServerPassword(string password) => ClientNetworkmanager.Instance.ServerPassword = password;
+
         /// <summary>
         /// Set Playername to Client
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         public static string SetPlayername(string name) => ClientNetworkmanager.Instance.Playername = name;
+
         /// <summary>
         /// Is Client Connected or not
         /// </summary>
         public static bool IsConnected => ClientNetworkmanager.Instance.isConnected;
+
         /// <summary>
         /// Get Network Instance
         /// </summary>
-        public static ClientNetworkmanager GetInstance { get { return ClientNetworkmanager.Instance; } }
+        public static ClientNetworkmanager GetInstance
+        { get { return ClientNetworkmanager.Instance; } }
+
         /// <summary>
         /// Trigger Client Log Message
         /// </summary>
@@ -513,15 +552,43 @@ namespace LowNet.Unity3D
                 case Enums.LogType.LogDebug:
                     Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#0083ff>[DEBUG]</color><color=#818181>{Message}</color>"));
                     break;
+
                 case Enums.LogType.LogNormal:
                     Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#00ff23>[LOG]</color><color=#818181>{Message}</color>"));
                     break;
+
                 case Enums.LogType.LogWarning:
                     Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}]</color><color=#ffa200>[WARNING]</color><color=#818181>{Message}</color>"));
                     break;
+
                 case Enums.LogType.LogError:
                     Debug.LogError(string.Format($"<color=#c5ff00>[{now}]</color><color=#ff0000>[ERROR]</color><color=#818181>{Message}</color>"));
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Overwrite exist Packet
+        /// </summary>
+        /// <param name="packetId"></param>
+        /// <param name="packet"></param>
+        public static void OverwritePacket(int packetId, PacketHandler packet)
+        {
+            if (ClientNetworkmanager.Packets[packetId] != null)
+                ClientNetworkmanager.Packets.Remove(packetId);
+            ClientNetworkmanager.Packets.Add(packetId, packet);
+        }
+
+        /// <summary>
+        /// Add new Packets
+        /// </summary>
+        /// <param name="packets"></param>
+        public static void AddPackets(Dictionary<int, PacketHandler> packets)
+        {
+            int Old = ClientNetworkmanager.Packets.Count + 1;
+            for (int i = 0; i < packets.Count; i++)
+            {
+                ClientNetworkmanager.Packets.Add((i + Old), packets[i]);
             }
         }
     }

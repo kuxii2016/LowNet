@@ -18,8 +18,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Unity3D\NetworkUis\" />
-  </ItemGroup>
-
 </Project>

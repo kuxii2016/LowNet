@@ -9,6 +9,7 @@
         /// Slow Update
         /// </summary>
         Update,
+
         /// <summary>
         /// High Update
         /// </summary>
