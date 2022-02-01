@@ -1,5 +1,6 @@
 ﻿using LowNet.Enums;
 using LowNet.Server.Events;
+using LowNet.Server.Packets;
 using LowNet.Server.Transport;
 using LowNet.Utils;
 using System;
@@ -98,7 +99,7 @@ namespace LowNet.Server
         /// <summary>Sends a packet to a client via TCP.</summary>
         /// <param name="client">The client to send the packet the packet to.</param>
         /// <param name="store">The packet to send to the client.</param>
-        private static void SendTCPData(Client client, Store store)
+        public static void SendTCPData(Client client, Store store)
         {
             store.WriteLength();
             Clients[client.Connectionid].Tcp.SendData(store);
@@ -200,7 +201,7 @@ namespace LowNet.Server
             ServerLogging = log;
         }
 
-        #region Events Invoke
+        #region Log Events Invoke
         /// <summary>
         /// Prints Normal Logmessage
         /// </summary>
@@ -250,5 +251,37 @@ namespace LowNet.Server
                 Instance.LogMessageEvent?.Invoke(Instance, new LogMessageEventArgs { Type = LogType.LogDebug, Message = Message, ClassInfo = classInfo });
         }
         #endregion
+
+        #region Player Events Invoke
+        /// <summary>
+        /// Fired on new Player Connection
+        /// </summary>
+        /// <param name="client"></param>
+        public static void OnPlayerconnect(Client client)
+        {
+            Instance.ConnectedEvent?.Invoke(Instance, new ConnectedEventArgs { Client = client, Message = "Joint the Game." });
+        }
+
+        /// <summary>
+        /// Fired on Player Disconnect
+        /// </summary>
+        /// <param name="client"></param>
+        public static void OnPlayerDisconnect(Client client)
+        {
+            Instance.DisconnectedEvent?.Invoke(Instance, new DisconnectedEventArgs { Client = client, Message = "Left the Game." });
+        }
+        #endregion
+
+        /// <summary>
+        /// System Packet handler
+        /// </summary>
+        public static void InitPackets()
+        {
+            Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
+            {
+                {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket }
+            };
+            Packets = packets;
+        }
     }
 }

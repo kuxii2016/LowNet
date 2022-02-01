@@ -17,5 +17,17 @@
         /// Spawn Player
         /// </summary>
         LOWNET_PLAYER,
+        /// <summary>
+        /// Spawn Server Objeckts
+        /// </summary>
+        LOWNET_OBJECKTS,
+        /// <summary>
+        /// Send Player Sync Packet
+        /// </summary>
+        LOWNET_PLAYER_SYNC,
+        /// <summary>
+        /// Send Object Sync Packet
+        /// </summary>
+        LOWNET_OBJECKT_SYNC
     }
 }

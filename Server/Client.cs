@@ -54,7 +54,7 @@ namespace LowNet.Server
                 ReceivedBytes = new byte[BufferSize];
                 Stream.BeginRead(ReceivedBytes, 0, BufferSize, EndRead, null);
 
-                Server.Log("Player: " + ClientId + " Joint the Game");
+                Server.Log("Player: " + ClientId + " Joint the Game", Server.Instance);
             }
 
             public void SendData(Store store)
@@ -63,7 +63,7 @@ namespace LowNet.Server
                 {
                     if (Socket != null)
                     {
-                        Stream.BeginWrite(store.ToArray, 0, store.Length, null, null); // Send data to appropriate client
+                        Stream.BeginWrite(store.ToArray, 0, store.Length, null, null);
                     }
                 }
                 catch (Exception ex)
@@ -194,13 +194,30 @@ namespace LowNet.Server
         /// </summary>
         public void Disconnect()
         {
-            Server.Log("Player: " + Connectionid + " Left the Game");
+            Server.Log("Player: " + Connectionid + " Left the Game", Server.Instance);
             ServerNetworkmanager.ExecuteOnMainThread(() =>
             {
+                Server.OnPlayerDisconnect(this);
                 //TODO: Call Unity3D Event
             });
             Tcp.Disconnect();
             Udp.Disconnect();
+        }
+
+        /// <summary>
+        /// This will Send Own Player, Other Player to old and the new Player to the Old
+        /// </summary>
+        public void SendPlayers()
+        {
+
+        }
+
+        /// <summary>
+        /// This will Send all Current Objeckt
+        /// </summary>
+        public void SendObjeckt()
+        {
+
         }
     }
 }

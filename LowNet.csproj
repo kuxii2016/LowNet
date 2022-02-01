@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Client\Packets\" />
-    <Folder Include="Server\Packets\" />
+    <Folder Include="Unity3D\NetworkUis\" />
   </ItemGroup>
 
 </Project>
