@@ -94,14 +94,19 @@ namespace LowNet.Unity3D
 
         private void OnConnect(object sender, ConnectedEventArgs e)
         {
-            NetworkPlayer player = Instantiate(Instance.PlayerModels[e.Client.Session.ModelId]);
-            player.transform.position = e.Client.Session.Position;
-            player.transform.rotation = e.Client.Session.Rotation;
-            player.IsMyView = false;
-            player.PlayerId = e.Client.Connectionid;
-            player.PlayerName = e.Client.PlayerName;
-            Player.Add(e.Client.Connectionid, player);
-            player.gameObject.name = "SV: " + player.PlayerId + " | " + player.PlayerName;
+            ClientNetworkmanager cm;
+            bool isMulti = TryGetComponent<ClientNetworkmanager>(out cm);
+            if (!isMulti)
+            {
+                NetworkPlayer player = Instantiate(Instance.PlayerModels[e.Client.Session.ModelId]);
+                player.transform.position = e.Client.Session.Position;
+                player.transform.rotation = e.Client.Session.Rotation;
+                player.IsMyView = false;
+                player.PlayerId = e.Client.Connectionid;
+                player.PlayerName = e.Client.PlayerName;
+                Player.Add(e.Client.Connectionid, player);
+                player.gameObject.name = "SV: " + player.PlayerId + " | " + player.PlayerName;
+            }
         }
 
         private void FixedUpdate()
