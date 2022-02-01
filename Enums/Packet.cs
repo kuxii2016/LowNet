@@ -8,7 +8,7 @@
         /// <summary>
         /// On Connect Main Packet
         /// </summary>
-        LOWNET_CONNECT,
+        LOWNET_CONNECT = 1,
 
         /// <summary>
         /// Player Data

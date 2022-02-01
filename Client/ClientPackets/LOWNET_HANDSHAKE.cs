@@ -9,13 +9,10 @@ namespace LowNet.ClientPackets
         internal static void Readpacket(Store store)
         {
             int id = store.PopInt();
-            if (id != Client.GetPlayerId)
-                return;
             string Playername = store.PopAscii();
-            if (Playername != Client.GetPlayername)
-                return;
             string GUID = store.PopAscii();
             int Playercount = store.PopInt();
+            Client.Log("Server Has: " + Playercount + " Request Player spawn", LogType.LogDebug);
             SendPacket(GUID, Playercount);
         }
 

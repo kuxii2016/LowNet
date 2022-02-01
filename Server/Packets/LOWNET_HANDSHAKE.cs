@@ -10,17 +10,22 @@ namespace LowNet.Server.Packets
         {
             string guid = store.PopAscii();
             int id = store.PopInt();
-            if (id != client.Connectionid)
-                return;
             byte order = store.PopByte();
             int count = store.PopInt();
             switch (order)
             {
-                case 0:
+                case 0x01:
+                    Server.Debug("Client Player Requst", Server.Instance);
                     client.SendPlayers();
                     break;
-                case 1:
+                case 0x02:
                     client.SendObjeckt();
+                    break;
+                case 0x03:
+                    throw new NotImplementedException();
+                default:
+                    //Its can not be Empty but Code analystic tool sayed it, So we make the Default xD
+                    Server.Error("Invalid Request Type: " + order, "'LOWNET_HANDSHAKE", Server.Instance);
                     break;
             }
         }
@@ -31,7 +36,7 @@ namespace LowNet.Server.Packets
             store.PushInt(client.Connectionid);
             store.PushAscii(client.PlayerName);
             store.PushAscii(client.ConnectionGuid);
-            store.PushInt(Server.Clients.Count);
+            store.PushInt(20);
             Server.SendTCPData(client, store);
         }
     }

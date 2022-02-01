@@ -14,8 +14,14 @@ namespace LowNet.Server
     public class Client
     {
         #region Public
-
-        private static DateTime LastPacket { get; set; }
+        /// <summary>
+        /// Playersession with most Infos about Player
+        /// </summary>
+        public Session Session;
+        /// <summary>
+        /// Last Timestamp from Last Packet
+        /// </summary>
+        public static DateTime LastPacket { get; private set; }
 
         /// <summary>
         /// Connection GUID
@@ -224,9 +230,10 @@ namespace LowNet.Server
             {
                 Server.OnPlayerDisconnect(this);
                 //TODO: Call Unity3D Event
+                Tcp.Disconnect();
+                Udp.Disconnect();
+                Session = null;
             });
-            Tcp.Disconnect();
-            Udp.Disconnect();
         }
 
         /// <summary>
@@ -234,6 +241,26 @@ namespace LowNet.Server
         /// </summary>
         public void SendPlayers()
         {
+            Server.OnPlayerconnect(this);
+
+            Server.Debug("Spawn All Player for new Connection.", Server.Instance);
+            foreach (var player in Server.Clients.Values)
+            {
+                if(player.Session != null)
+                {
+                    if(player.Connectionid != Connectionid)
+                        LOWNET_PLAYER.SendPacket(this, player, true);
+                }
+            }
+
+            Server.Debug("Spawn new Player to Old Players", Server.Instance);
+            foreach (var player in Server.Clients.Values)
+            {
+                if (player.Session != null)
+                {
+                    LOWNET_PLAYER.SendPacket(player, this, true);
+                }
+            }
         }
 
         /// <summary>

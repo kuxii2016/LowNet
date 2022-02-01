@@ -301,7 +301,8 @@ namespace LowNet.Server
             Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
             {
                 {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
-                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket }
+                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
+                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
             };
             Packets = packets;
         }

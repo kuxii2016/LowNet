@@ -8,11 +8,11 @@ namespace LowNet.Server.Packets
         internal static void Readpacket(Client client, Store store)
         {
             int clientId = store.PopInt();
-            if (client.Connectionid != clientId)
-                return;
-
+            int ModelId = store.PopInt();
             client.PlayerName = store.PopAscii();
             client.ConnectionGuid = store.PopAscii();
+            client.Session = new Session(client.PlayerName, ModelId);
+            Server.Log("Handshakeinfos: " + client.PlayerName + "@" + client.ConnectionGuid + ":" + ModelId);
             LOWNET_HANDSHAKE.SendPacket(client);
         }
 

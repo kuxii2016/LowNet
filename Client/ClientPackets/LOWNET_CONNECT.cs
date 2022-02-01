@@ -46,11 +46,13 @@ namespace LowNet.ClientPackets
         }
 
         /// <summary>
-        /// Send Player Infos ConnectionId, Name, Current GUID You can Send packet via LOWNET_CONNECT.Sendpacket(*name*) Need only Empty name in the Client Networkmanager
-        /// to Stopp Auto Send
+        /// Send Player Infopacket Manuall Mode works only with Empty Playername
         /// </summary>
-        public static void Sendpacket(string playername = null)
+        /// <param name="playername">Playername from Input Field</param>
+        /// <param name="ModelId">Model when you have more Playermodels Default = 0</param>
+        public static void Sendpacket(string playername = null, int ModelId = 0)
         {
+            Client.Log("Starting Sending Playerinfos", LogType.LogDebug);
             string User = Client.GetPlayername;
             if (!String.IsNullOrEmpty(playername))
                 User = playername;
@@ -58,8 +60,10 @@ namespace LowNet.ClientPackets
                 User = "LowNet-Player";
             Store store = new Store((int)Packet.LOWNET_CONNECT);
             store.PushInt(Client.GetPlayerId);
+            store.PushInt(ModelId);
             store.PushAscii(User);
             store.PushAscii(Guid.NewGuid().ToString());
+            Client.Log("Sending Playerinfos", LogType.LogDebug);
             Client.SendTCP(store);
         }
     }

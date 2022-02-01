@@ -1,5 +1,6 @@
 ﻿using LowNet.Enums;
 using LowNet.Server.Events;
+using LowNet.Server.Packets;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,34 +9,36 @@ namespace LowNet.Unity3D
 {
     internal class ServerNetworkmanager : MonoBehaviour
     {
+        /// <summary>
+        /// Player Holder
+        /// </summary>
+        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
         public static ServerNetworkmanager Instance;
 
         [Header("Server IPAdresse")]
         public string ServerIP = "127.0.0.1";
-
         [Header("Server Listenport")]
         public int ServerPort = 4900;
-
         [Header("Max Amount of Player"), Range(2, 1000)]
         public int Maxplayer = 50;
-
         [Header("Serverlisten Name")]
         public string ServerName = "LowNet-Server";
-
         [Header("Server Password")]
         public string ServerPassword = "";
-
         [Header("Network Update Rate")]
         public NetworkUpdate NetworkSpeed = NetworkUpdate.FixedUpdate;
-
         [Header("Server Log Mode")]
         public LogMode ServerLogging = LogMode.LogNormal;
-
         [Header("Auto Start on Start")]
         public bool Autostart = false;
-
+        [Header("Is Server Running")]
         public bool IsRunning = false;
         public static Server.Server server;
+        /// <summary>
+        /// Player Spawn Models
+        /// </summary>
+        [Header("All Playermodels"), Tooltip("Min 1 is Needet")]
+        public List<NetworkPlayer> PlayerModels;
 
         private void Awake()
         {
@@ -81,12 +84,24 @@ namespace LowNet.Unity3D
 
         private void OnDisconnect(object sender, DisconnectedEventArgs e)
         {
-            throw new NotImplementedException();
+            Player.Remove(e.Client.Connectionid);
+            foreach (var item in Server.Server.Clients.Values)
+            {
+                if (item.Session != null)
+                    LOWNET_PLAYER.SendPacket(item, e.Client);
+            }
         }
 
         private void OnConnect(object sender, ConnectedEventArgs e)
         {
-            throw new NotImplementedException();
+            NetworkPlayer player = Instantiate(Instance.PlayerModels[e.Client.Session.ModelId]);
+            player.transform.position = e.Client.Session.Position;
+            player.transform.rotation = e.Client.Session.Rotation;
+            player.IsMyView = false;
+            player.PlayerId = e.Client.Connectionid;
+            player.PlayerName = e.Client.PlayerName;
+            Player.Add(e.Client.Connectionid, player);
+            player.gameObject.name = "SV: " + player.PlayerId + " | " + player.PlayerName;
         }
 
         private void FixedUpdate()

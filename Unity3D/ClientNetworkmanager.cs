@@ -19,77 +19,75 @@ namespace LowNet.Unity3D
     public class ClientNetworkmanager : MonoBehaviour
     {
         /// <summary>
+        /// Player Holder
+        /// </summary>
+        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+
+        /// <summary>
         /// Networkmanager Instance
         /// </summary>
         public static ClientNetworkmanager Instance { get; private set; }
-
         /// <summary>
         /// IPAdresse who the Client Connect
         /// </summary>
         [Header("Server IPAdresse")]
         public string ServerIP = "127.0.0.1";
-
         /// <summary>
         /// Server Port
         /// </summary>
         [Header("Server Listenport")]
         public int ServerPort = 4900;
-
         /// <summary>
         /// Server Password need for Connection
         /// </summary>
         [Header("Server Password")]
         public string ServerPassword = "";
-
         /// <summary>
         /// Network Worker Update rate
         /// </summary>
         [Header("Network Update Rate")]
         public NetworkUpdate NetworkSpeed = NetworkUpdate.Update;
-
         /// <summary>
         /// Client Logging Mode
         /// </summary>
         [Header("Server Log Mode")]
         public LogMode ServerLogging = LogMode.LogNormal;
-
         /// <summary>
         /// Auto Connect on Start
         /// </summary>
         [Header("Auto Connect to Server on Start")]
         public bool AutoConnect = false;
-
         /// <summary>
         /// Playername from this Player
         /// </summary>
         [Header("Client Playername")]
         public string Playername = "LowNetplayer";
-
         /// <summary>
         /// Client TCP-Layer
         /// </summary>
         internal TCP tcp;
-
         /// <summary>
         /// Client UDP-Layer
         /// </summary>
         internal UDP udp;
-
         /// <summary>
         /// Round Trip Time to Server
         /// </summary>
         public long RTT;
-
         /// <summary>
         /// On Incomming Packet
         /// </summary>
         /// <param name="store"></param>
         public delegate void PacketHandler(Store store);
-
         /// <summary>
         /// Regestrierte Packets
         /// </summary>
         public static Dictionary<int, PacketHandler> Packets;
+        /// <summary>
+        /// Player Spawn Models
+        /// </summary>
+        [Header("All Playermodels"), Tooltip("Min 1 is Needet")]
+        public List<NetworkPlayer> PlayerModels;
 
         #region Unity3d Events
 
@@ -216,6 +214,7 @@ namespace LowNet.Unity3D
             {
                 try
                 {
+                    store.WriteLength();
                     if (socket != null)
                     {
                         stream.BeginWrite(store.ToArray, 0, store.Length, null, null);
@@ -332,6 +331,7 @@ namespace LowNet.Unity3D
                 try
                 {
                     store.InsertInt(Instance.ConnectionId);
+                    store.WriteLength();
                     if (socket != null)
                     {
                         socket.BeginSend(store.ToArray, store.Length, null, null);
@@ -464,9 +464,42 @@ namespace LowNet.Unity3D
             Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
             {
                 {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
-                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket }
+                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
+                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
             };
             Packets = packets;
+        }
+
+        /// <summary>
+        /// Despawn Player
+        /// </summary>
+        /// <param name="PlayerId"></param>
+        public static void DeSpawnPlayer(int PlayerId)
+        {
+            GameObject player = Player[PlayerId].gameObject;
+            Destroy(player);
+            Player.Remove(PlayerId);
+        }
+
+        /// <summary>
+        /// Spawn Player
+        /// </summary>
+        /// <param name="ModelId"></param>
+        /// <param name="pos"></param>
+        /// <param name="rot"></param>
+        /// <param name="playername"></param>
+        /// <param name="isMyPlayer"></param>
+        /// <param name="PlayerId"></param>
+        public static void SpawnPlayer(int ModelId, Vector3 pos, Quaternion rot, string playername, bool isMyPlayer = false, int PlayerId = -1)
+        {
+            NetworkPlayer player = Instantiate(Instance.PlayerModels[ModelId]);
+            player.transform.position = pos;
+            player.transform.rotation = rot;
+            player.IsMyView = isMyPlayer;
+            player.PlayerId = PlayerId;
+            player.PlayerName = playername;
+            Player.Add(PlayerId, player);
+            player.gameObject.name = "CL: " + player.PlayerId + " | " + player.PlayerName;
         }
     }
 
