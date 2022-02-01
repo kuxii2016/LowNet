@@ -1,6 +1,6 @@
 ## LowNet
 
-Unity3d or non-Unity3d Networksystem written in C#
+Unity3d Network System written in C#
 
 System is easy to use as there is a wide range of components to choose from.
 
@@ -26,7 +26,6 @@ Drag dop the dll into the engine,
 Build 
 Server Networkmanager(On Server) 
 Client Networkmanager(On Client)
-Threadmanager. 
 And you are ready to go.
 More detailed description with example Comming Soon
 
