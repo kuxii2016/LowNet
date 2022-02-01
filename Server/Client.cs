@@ -50,9 +50,11 @@ namespace LowNet.Server
                 Socket.ReceiveBufferSize = BufferSize;
                 Socket.SendBufferSize = BufferSize;
                 Stream = Socket.GetStream();
-
+                Received = new Store();
                 ReceivedBytes = new byte[BufferSize];
                 Stream.BeginRead(ReceivedBytes, 0, BufferSize, EndRead, null);
+
+                Server.Log("Player: " + ClientId + " Joint the Game");
             }
 
             public void SendData(Store store)
@@ -64,10 +66,12 @@ namespace LowNet.Server
                         Stream.BeginWrite(store.ToArray, 0, store.Length, null, null); // Send data to appropriate client
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Server.Error("Failed send data via TCP-Layer", ex.Message, this);
                 }
             }
+
             private void EndRead(IAsyncResult ar)
             {
                 try
@@ -75,17 +79,19 @@ namespace LowNet.Server
                     int bytes = Stream.EndRead(ar);
                     if (bytes <= 0)
                     {
+                        Server.Error("Got Empty Packet", "Empty Packets not Allowed", this);
                         Server.Clients[ClientId].Disconnect();
                         return;
                     }
 
                     byte[] data = new byte[bytes];
                     Array.Copy(ReceivedBytes, data, bytes);
-
+                    Received.Reset(Readpacket(data));
                     Stream.BeginRead(ReceivedBytes, 0, BufferSize, EndRead, null);
                 }
                 catch (Exception)
                 {
+                    Server.Error("Failed read data from Client: " + ClientId, "", this);
                     Server.Clients[ClientId].Disconnect();
                 }
             }
@@ -188,6 +194,7 @@ namespace LowNet.Server
         /// </summary>
         public void Disconnect()
         {
+            Server.Log("Player: " + Connectionid + " Left the Game");
             ServerNetworkmanager.ExecuteOnMainThread(() =>
             {
                 //TODO: Call Unity3D Event

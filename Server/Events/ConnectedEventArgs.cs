@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LowNet.Server.Events
 {
+    /// <summary>
+    /// On Client Connect Trigger
+    /// </summary>
     public class ConnectedEventArgs : EventArgs
     {
     }

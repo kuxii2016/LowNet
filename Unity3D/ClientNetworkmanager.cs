@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using UnityEngine;
+using System.Collections;
+using System.Text;
+using System.Net.NetworkInformation;
 
 namespace LowNet.Unity3D
 {
@@ -23,8 +25,9 @@ namespace LowNet.Unity3D
         [Header("Server Log Mode")]
         public LogMode ServerLogging = LogMode.LogNormal;
         public bool AutoConnect = false;
-        [HideInInspector]public TCP tcp;
+        [HideInInspector] public TCP tcp;
         [HideInInspector] public UDP udp;
+        public long RTT;
 
         /// <summary>
         /// On Incomming Packet
@@ -49,6 +52,7 @@ namespace LowNet.Unity3D
             if (AutoConnect)
             {
                 ConnectToServer();
+                StartCoroutine(GetPing());
             }
         }
 
@@ -152,7 +156,7 @@ namespace LowNet.Unity3D
                         stream.BeginWrite(store.ToArray, 0, store.Length, null, null);
                     }
                 }
-                catch (Exception _ex)
+                catch (Exception)
                 {
                 }
             }
@@ -341,5 +345,23 @@ namespace LowNet.Unity3D
             tcp.Connect();
         }
         #endregion
+
+        public IEnumerator GetPing()
+        {
+            yield return new WaitForSecondsRealtime(60);
+            System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
+            PingOptions options = new PingOptions();
+            options.DontFragment = true;
+
+            string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            int timeout = 120;
+            PingReply reply = pingSender.Send(ServerIP, timeout, buffer, options);
+            if (reply.Status == IPStatus.Success)
+            {
+                RTT = reply.RoundtripTime;
+            }
+            StartCoroutine(GetPing());
+        }
     }
 }

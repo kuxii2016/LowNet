@@ -177,14 +177,23 @@ namespace LowNet.Server
             {
                 Clients.Add(i, new Client(i));
             }
-            Console.WriteLine("Server Started.");
+            Log($"LowNet Server Started, Bind to: {ServerIp}:{ServerPort} for: {MaxPlayers}", Instance);
             return true;
+        }
+
+        /// <summary>
+        /// Stop Server and disconnect all clients
+        /// </summary>
+        public void Stopserver()
+        {
+            TCPLayer.Shutdown();
+            UDPLayer.Shutdown();
+            Log("Server Stopped.");
         }
 
         /// <summary>
         /// Set Serversettings
         /// </summary>
-        /// <param name="update"></param>
         /// <param name="log"></param>
         public static void SetSettings(LogMode log)
         {
@@ -220,8 +229,9 @@ namespace LowNet.Server
         /// Prints Normal Logmessage
         /// </summary>
         /// <param name="Message"></param>
+        /// <param name="ex"></param>
         /// <param name="script"></param>
-        public static void Error(string Message,string ex, object script = null)
+        public static void Error(string Message, string ex, object script = null)
         {
             string classInfo = ClassUtils.TryGetClass(script);
             if (Instance.LogMessageEvent != null && ServerLogging == LogMode.LogError || ServerLogging == LogMode.LogNormal || ServerLogging == LogMode.LogAll || ServerLogging == LogMode.LogDebug)

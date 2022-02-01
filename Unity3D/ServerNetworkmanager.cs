@@ -1,8 +1,7 @@
 ﻿using LowNet.Enums;
-using LowNet.Server;
+using LowNet.Server.Events;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace LowNet.Unity3D
@@ -14,7 +13,7 @@ namespace LowNet.Unity3D
         public string ServerIP = "127.0.0.1";
         [Header("Server Listenport")]
         public int ServerPort = 4900;
-        [Header("Max Amount of Player"), Range(2,1000)]
+        [Header("Max Amount of Player"), Range(2, 1000)]
         public int Maxplayer = 50;
         [Header("Serverlisten Name")]
         public string ServerName = "LowNet-Server";
@@ -41,9 +40,41 @@ namespace LowNet.Unity3D
         {
             server = new Server.Server(ServerPassword, ServerName, ServerIP, ServerPort, Maxplayer);
             Server.Server.SetSettings(ServerLogging);
-
+            server.ConnectedEvent += OnConnect;
+            server.DisconnectedEvent += OnDisconnect;
+            server.LogMessageEvent += OnServerLog;
             if (Autostart && server != null)
                 IsRunning = server.Startserver();
+        }
+
+        private void OnServerLog(object sender, LogMessageEventArgs e)
+        {
+            string now = e.dateTime.Millisecond.ToString("0.00");
+            switch (e.Type)
+            {
+                case Enums.LogType.LogDebug:
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#0083ff>[DEBUG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    break;
+                case Enums.LogType.LogNormal:
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#00ff23>[LOG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    break;
+                case Enums.LogType.LogWarning:
+                    Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}]</color><color=#ffa200>[WARNING]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    break;
+                case Enums.LogType.LogError:
+                    Debug.LogError(string.Format($"<color=#c5ff00>[{now}]</color><color=#ff0000>[ERROR]</color><color=#818181>{e.ClassInfo}::{e.Message}, {e.Exception}</color>"));
+                    break;
+            }
+        }
+
+        private void OnDisconnect(object sender, DisconnectedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnConnect(object sender, ConnectedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void FixedUpdate()
@@ -56,6 +87,13 @@ namespace LowNet.Unity3D
         {
             if (NetworkSpeed == NetworkUpdate.Update)
                 UpdateMain();
+        }
+
+        void OnApplicationQuit()
+        {
+            server.ConnectedEvent -= OnConnect;
+            server.DisconnectedEvent -= OnDisconnect;
+            server.LogMessageEvent -= OnServerLog;
         }
 
         #region Threadmanager

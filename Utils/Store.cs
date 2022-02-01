@@ -110,49 +110,49 @@ namespace LowNet.Utils
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushByte(byte _value)=>buffer.Add(_value);
+        public void PushByte(byte _value) => buffer.Add(_value);
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushBytes(byte[] _value)=>buffer.AddRange(_value);
+        public void PushBytes(byte[] _value) => buffer.AddRange(_value);
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushShort(short _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushShort(short _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushInt(int _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushInt(int _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushLong(long _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushLong(long _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushDouble(double _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushDouble(double _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushFloat(float _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushFloat(float _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package
         /// </summary>
         /// <param name="_value"></param>
-        public void PushBool(bool _value)=>buffer.AddRange(BitConverter.GetBytes(_value));
+        public void PushBool(bool _value) => buffer.AddRange(BitConverter.GetBytes(_value));
 
         /// <summary>
         /// Add data to the package

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LowNet.Utils
+﻿namespace LowNet.Utils
 {
+    /// <summary>
+    /// Class Functions
+    /// </summary>
     public class ClassUtils
     {
         /// <summary>
