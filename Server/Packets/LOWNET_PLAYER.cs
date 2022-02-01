@@ -20,6 +20,7 @@ namespace LowNet.Server.Packets
             store.PushAscii(client.Session.Joined.ToString());
             store.PushVector3(client.Session.Position);
             store.PushQuaternion(client.Session.Rotation);
+            Server.Debug($"Send Player: {client.Connectionid}:{client.Session.ModelId},{client.Session.Playername},{client.Session.Position} to Player: {toClient.Connectionid}", Server.Instance);
             Server.SendTCPData(toClient, store);
         }
 

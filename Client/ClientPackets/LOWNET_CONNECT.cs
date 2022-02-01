@@ -52,7 +52,6 @@ namespace LowNet.ClientPackets
         /// <param name="ModelId">Model when you have more Playermodels Default = 0</param>
         public static void Sendpacket(string playername = null, int ModelId = 0)
         {
-            Client.Log("Starting Sending Playerinfos", LogType.LogDebug);
             string User = Client.GetPlayername;
             if (!String.IsNullOrEmpty(playername))
                 User = playername;
@@ -63,7 +62,6 @@ namespace LowNet.ClientPackets
             store.PushInt(ModelId);
             store.PushAscii(User);
             store.PushAscii(Guid.NewGuid().ToString());
-            Client.Log("Sending Playerinfos", LogType.LogDebug);
             Client.SendTCP(store);
         }
     }

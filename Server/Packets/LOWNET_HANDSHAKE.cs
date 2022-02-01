@@ -12,10 +12,10 @@ namespace LowNet.Server.Packets
             int id = store.PopInt();
             byte order = store.PopByte();
             int count = store.PopInt();
+            Server.Debug($"Player: {client.PlayerName} Request Order: " + order, Server.Instance);
             switch (order)
             {
                 case 0x01:
-                    Server.Debug("Client Player Requst", Server.Instance);
                     client.SendPlayers();
                     break;
                 case 0x02:

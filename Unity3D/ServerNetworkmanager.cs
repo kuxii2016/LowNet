@@ -65,19 +65,19 @@ namespace LowNet.Unity3D
             switch (e.Type)
             {
                 case Enums.LogType.LogDebug:
-                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#0083ff>[DEBUG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}][LowNet-Server]</color><color=#0083ff>[DEBUG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
 
                 case Enums.LogType.LogNormal:
-                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#00ff23>[LOG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}][LowNet-Server]</color><color=#00ff23>[LOG]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
 
                 case Enums.LogType.LogWarning:
-                    Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}]</color><color=#ffa200>[WARNING]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
+                    Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}][LowNet-Server]</color><color=#ffa200>[WARNING]</color><color=#818181>{e.ClassInfo}::{e.Message}</color>"));
                     break;
 
                 case Enums.LogType.LogError:
-                    Debug.LogError(string.Format($"<color=#c5ff00>[{now}]</color><color=#ff0000>[ERROR]</color><color=#818181>{e.ClassInfo}::{e.Message}, {e.Exception}</color>"));
+                    Debug.LogError(string.Format($"<color=#c5ff00>[{now}][LowNet-Server]</color><color=#ff0000>[ERROR]</color><color=#818181>{e.ClassInfo}::{e.Message}, {e.Exception}</color>"));
                     break;
             }
         }
@@ -106,6 +106,10 @@ namespace LowNet.Unity3D
                 player.PlayerName = e.Client.PlayerName;
                 Player.Add(e.Client.Connectionid, player);
                 player.gameObject.name = "SV: " + player.PlayerId + " | " + player.PlayerName;
+            }
+            else
+            {
+                Server.Server.Log("Project is Multibuild, Spawn only Clientside Player", Instance);
             }
         }
 

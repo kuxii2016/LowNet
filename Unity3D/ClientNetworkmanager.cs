@@ -23,6 +23,7 @@ namespace LowNet.Unity3D
         /// </summary>
         public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
 
+        #region Public Propertys
         /// <summary>
         /// Networkmanager Instance
         /// </summary>
@@ -63,6 +64,14 @@ namespace LowNet.Unity3D
         [Header("Client Playername")]
         public string Playername = "LowNetplayer";
         /// <summary>
+        /// Player Spawn Models
+        /// </summary>
+        [Header("All Playermodels"), Tooltip("Min 1 is Needet")]
+        public List<NetworkPlayer> PlayerModels;
+        #endregion
+
+        #region Private Propertys
+        /// <summary>
         /// Client TCP-Layer
         /// </summary>
         internal TCP tcp;
@@ -74,6 +83,9 @@ namespace LowNet.Unity3D
         /// Round Trip Time to Server
         /// </summary>
         public long RTT;
+        #endregion
+
+        #region Packets
         /// <summary>
         /// On Incomming Packet
         /// </summary>
@@ -83,11 +95,7 @@ namespace LowNet.Unity3D
         /// Regestrierte Packets
         /// </summary>
         public static Dictionary<int, PacketHandler> Packets;
-        /// <summary>
-        /// Player Spawn Models
-        /// </summary>
-        [Header("All Playermodels"), Tooltip("Min 1 is Needet")]
-        public List<NetworkPlayer> PlayerModels;
+        #endregion Packets
 
         #region Unity3d Events
 
@@ -163,18 +171,18 @@ namespace LowNet.Unity3D
         #endregion Threadmanager
 
         #region Networking
-
         /// <summary>
         /// Packet buffer
         /// </summary>
         private const int dataBufferSize = 4096;
-
         /// <summary>
         /// Client ConnectionId
         /// </summary>
         [Header("My Player Connection Id")]
         public int ConnectionId = 0;
-
+        /// <summary>
+        /// Is Player Connected 
+        /// </summary>
         internal bool isConnected = false;
 
         internal class TCP
@@ -330,15 +338,19 @@ namespace LowNet.Unity3D
             {
                 try
                 {
-                    store.InsertInt(Instance.ConnectionId);
-                    store.WriteLength();
-                    if (socket != null)
+                    if (Client.IsConnected)
                     {
-                        socket.BeginSend(store.ToArray, store.Length, null, null);
+                        store.InsertInt(Instance.ConnectionId);
+                        store.WriteLength();
+                        if (socket != null)
+                        {
+                            socket.BeginSend(store.ToArray, store.Length, null, null);
+                        }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Client.Log("Failed Send data over UDP: " + ex.Message, Enums.LogType.LogError);
                 }
             }
 
@@ -357,34 +369,37 @@ namespace LowNet.Unity3D
 
                     HandleData(data);
                 }
-                catch
+                catch(Exception ex)
                 {
+                    Client.Log("Failed Read data over UDP: " + ex.Message, Enums.LogType.LogError);
                     Disconnect();
                 }
             }
 
             private void HandleData(byte[] data)
             {
-                using (Store store = new Store(data))
-                {
-                    int packetLength = store.PopInt();
-                    data = store.PopBytes(packetLength);
-                }
-
-                ExecuteOnMainThread(() =>
+                if (Client.IsConnected)
                 {
                     using (Store store = new Store(data))
                     {
-                        int packetId = store.PopInt();
-                        Packets[packetId](store);
+                        int packetLength = store.PopInt();
+                        data = store.PopBytes(packetLength);
                     }
-                });
+
+                    ExecuteOnMainThread(() =>
+                    {
+                        using (Store store = new Store(data))
+                        {
+                            int packetId = store.PopInt();
+                            Packets[packetId](store);
+                        }
+                    });
+                }
             }
 
             private void Disconnect()
             {
                 Instance.Disconnect();
-
                 endPoint = null;
                 socket = null;
             }
@@ -417,8 +432,6 @@ namespace LowNet.Unity3D
             tcp.Connect();
         }
 
-        #endregion Networking
-
         /// <summary>
         /// Get Client RTT Time
         /// </summary>
@@ -443,7 +456,9 @@ namespace LowNet.Unity3D
                 StartCoroutine(GetPing());
             }
         }
+        #endregion Networking
 
+        #region Player name Change
         /// <summary>
         /// Set Playername
         /// </summary>
@@ -455,21 +470,9 @@ namespace LowNet.Unity3D
         /// </summary>
         /// <param name="name"></param>
         public static void Updateplayername(string name) => Instance.SetPlayername(name);
+        #endregion Player name Change
 
-        /// <summary>
-        /// Init Client Packets
-        /// </summary>
-        public static void InitPackets()
-        {
-            Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
-            {
-                {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
-                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
-                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
-            };
-            Packets = packets;
-        }
-
+        #region Player Spawn Despawn
         /// <summary>
         /// Despawn Player
         /// </summary>
@@ -500,6 +503,21 @@ namespace LowNet.Unity3D
             player.PlayerName = playername;
             Player.Add(PlayerId, player);
             player.gameObject.name = "CL: " + player.PlayerId + " | " + player.PlayerName;
+        }
+        #endregion Player Spawn Despawn
+
+        /// <summary>
+        /// Init Client Packets
+        /// </summary>
+        public static void InitPackets()
+        {
+            Dictionary<int, PacketHandler> packets = new Dictionary<int, PacketHandler>()
+            {
+                {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
+                {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
+                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
+            };
+            Packets = packets;
         }
     }
 
@@ -580,19 +598,19 @@ namespace LowNet.Unity3D
             switch (logType)
             {
                 case Enums.LogType.LogDebug:
-                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#0083ff>[DEBUG]</color><color=#818181>{Message}</color>"));
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}][LowNet-Client]</color><color=#0083ff>[DEBUG]</color><color=#818181>{Message}</color>"));
                     break;
 
                 case Enums.LogType.LogNormal:
-                    Debug.Log(string.Format($"<color=#c5ff00>[{now}]</color><color=#00ff23>[LOG]</color><color=#818181>{Message}</color>"));
+                    Debug.Log(string.Format($"<color=#c5ff00>[{now}][LowNet-Client]</color><color=#00ff23>[LOG]</color><color=#818181>{Message}</color>"));
                     break;
 
                 case Enums.LogType.LogWarning:
-                    Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}]</color><color=#ffa200>[WARNING]</color><color=#818181>{Message}</color>"));
+                    Debug.LogWarning(string.Format($"<color=#c5ff00>[{now}][LowNet-Client]</color><color=#ffa200>[WARNING]</color><color=#818181>{Message}</color>"));
                     break;
 
                 case Enums.LogType.LogError:
-                    Debug.LogError(string.Format($"<color=#c5ff00>[{now}]</color><color=#ff0000>[ERROR]</color><color=#818181>{Message}</color>"));
+                    Debug.LogError(string.Format($"<color=#c5ff00>[{now}][LowNet-Client]</color><color=#ff0000>[ERROR]</color><color=#818181>{Message}</color>"));
                     break;
             }
         }

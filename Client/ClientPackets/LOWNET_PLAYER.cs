@@ -31,7 +31,12 @@ namespace LowNet.ClientPackets
             if(player == PlayerId)
             {
                 myview = true;
+                Client.Log("Received Local Player.", Enums.LogType.LogDebug);
                 //My Playerobject enable controll on this
+            }
+            else
+            {
+                Client.Log("Received Remote Player.", Enums.LogType.LogDebug);
             }
             if (create)
                 ClientNetworkmanager.SpawnPlayer(ModelId, pos, rot, Playername, myview, PlayerId);
