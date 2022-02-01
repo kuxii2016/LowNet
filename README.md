@@ -1,6 +1,7 @@
 ## LowNet
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/baa7a54b6c7943cb86e6468c51d04a31)](https://app.codacy.com/gh/kuxii2016/LowNet?utm_source=github.com&utm_medium=referral&utm_content=kuxii2016/LowNet&utm_campaign=Badge_Grade_Settings)
+[![wakatime](https://wakatime.com/badge/github/kuxii2016/LowNet.svg)](https://wakatime.com/badge/github/kuxii2016/LowNet)
 
 Unity3d Network System written in C#
 
