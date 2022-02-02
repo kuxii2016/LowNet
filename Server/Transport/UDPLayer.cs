@@ -45,10 +45,12 @@ namespace LowNet.Server.Transport
                         if (Server.Clients[Client].Udp.EndPoint == null)
                         {
                             Server.Clients[Client].Udp.Connect(client);
+                            Server.Debug("Connecting UDP Soket", Server.Instance);
                             return;
                         }
-                        if (Server.Clients[Client].Udp.EndPoint == client)
+                        if (Server.Clients[Client].Udp.EndPoint.ToString() == client.ToString())
                         {
+                            Server.Debug("Handle Packet Client: " + Client, Server.Instance);
                             Server.Clients[Client].Udp.ReadPacket(store);
                         }
                     }

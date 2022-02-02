@@ -23,5 +23,7 @@ namespace LowNet.Unity3D
         /// </summary>
         [Header("Is My Prefab")]
         public bool IsMyView = false;
+
+        public GameObject Prefab;
     }
 }

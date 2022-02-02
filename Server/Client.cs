@@ -174,6 +174,7 @@ namespace LowNet.Server
                 Socket.Close();
                 Stream = null;
                 ReceivedBytes = null;
+                Received = null;
                 Socket = null;
             }
         }
@@ -198,18 +199,19 @@ namespace LowNet.Server
                 UDPLayer.SendUDPData(EndPoint, store);
             }
 
-            public void ReadPacket(Store store)
+            public void ReadPacket(Store _packetData)
             {
                 LastPacket = DateTime.Now;
-                int Lenght = store.PopInt();
-                byte[] data = store.PopBytes(Lenght);
+
+                int _packetLength = _packetData.PopInt();
+                byte[] _packetBytes = _packetData.PopBytes(_packetLength);
 
                 ServerNetworkmanager.ExecuteOnMainThread(() =>
                 {
-                    using (Store store1 = new Store(data))
+                    using (Store _packet = new Store(_packetBytes))
                     {
-                        int PacketId = store1.PopInt();
-                        Server.Packets[PacketId](Server.Clients[ClientId], store1);
+                        int _packetID = _packet.PopInt();
+                        Server.Packets[_packetID](Server.Clients[ClientId], _packet);
                     }
                 });
             }
@@ -225,9 +227,9 @@ namespace LowNet.Server
         /// </summary>
         public void Disconnect()
         {
-            Server.Log("Player: " + Connectionid + " Left the Game", Server.Instance);
             ServerNetworkmanager.ExecuteOnMainThread(() =>
             {
+                Server.Log("Player: " + Connectionid + " Left the Game", Server.Instance);
                 Server.OnPlayerDisconnect(this);
                 Tcp.Disconnect();
                 Udp.Disconnect();

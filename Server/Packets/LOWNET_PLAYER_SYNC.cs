@@ -21,13 +21,9 @@ namespace LowNet.Server.Packets
             //Set Pos and Rot of this Player, new Player will know on Connect the Pos and Rot for Spawning
             Server.Clients[PlayerId].Session.Position = pos;
             Server.Clients[PlayerId].Session.Rotation = rot;
-
-            //We Applay the Pos and Rot in Unity3d Editor
-            if (ServerNetworkmanager.Instance != null)
-            {
-                ServerNetworkmanager.Player[PlayerId].gameObject.transform.position = pos;
-                ServerNetworkmanager.Player[PlayerId].gameObject.transform.rotation = rot;
-            }
+            ServerNetworkmanager.Player[PlayerId].gameObject.transform.position = pos;
+            ServerNetworkmanager.Player[PlayerId].gameObject.transform.rotation = rot;
+            ServerNetworkmanager.Player[PlayerId].GetComponent<NetworkPlayercontroller>().SetSync(sync);
             //TODO: Applay Sync for Animator
         }
 

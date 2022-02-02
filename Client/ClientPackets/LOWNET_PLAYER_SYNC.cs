@@ -30,6 +30,7 @@ namespace LowNet.ClientPackets
             {
                 ClientNetworkmanager.Player[PlayerId].gameObject.transform.position = pos;
                 ClientNetworkmanager.Player[PlayerId].gameObject.transform.rotation = rot;
+                ClientNetworkmanager.Player[PlayerId].GetComponent<NetworkPlayercontroller>().SetSync(sync);
             }
         }
     }

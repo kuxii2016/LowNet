@@ -91,6 +91,8 @@ namespace LowNet.Unity3D
                 IsMyPlayer = true;
                 CanControll = true;
             }
+            lastPosition = transform.position;
+            lastRotation = transform.rotation;
         }
 
         void Update()
@@ -186,10 +188,38 @@ namespace LowNet.Unity3D
         {
             if (Vector3.Distance(transform.position, lastPosition) >= SyncUpdate || Quaternion.Angle(transform.rotation, lastRotation) >= SyncUpdate)
             {
+                Client.Log("Network Sync Update", Enums.LogType.LogDebug);
                 lastPosition = transform.position;
                 lastRotation = transform.rotation;
-                if (Client.IsConnected && ClientNetworkmanager.Instance != null)
-                    LOWNET_PLAYER_SYNC.Sendpacket(transform.position, transform.rotation, AnimatorSync);
+                LOWNET_PLAYER_SYNC.Sendpacket(transform.position, transform.rotation, AnimatorSync);
+            }
+        }
+
+        public void SetSync(byte[] sync)
+        {
+            if(sync[0]== 1)
+            {
+                animator.SetInteger("walk", 1);
+            }
+            else
+            {
+                animator.SetInteger("walk", 0);
+            }
+            if (sync[1] == 1)
+            {
+                animator.SetInteger("walkback", 2);
+            }
+            else
+            {
+                animator.SetInteger("walkback", 0);
+            }
+            if (sync[2] == 1)
+            {
+                animator.SetInteger("running", 1);
+            }
+            else
+            {
+                animator.SetInteger("running", 0);
             }
         }
     }

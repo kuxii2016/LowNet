@@ -21,7 +21,7 @@ namespace LowNet.Unity3D
         /// <summary>
         /// Player Holder
         /// </summary>
-        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+        public static Dictionary<int, GameObject> Player = new Dictionary<int, GameObject>();
 
         #region Public Propertys
         /// <summary>
@@ -126,6 +126,11 @@ namespace LowNet.Unity3D
         {
             if (NetworkSpeed == NetworkUpdate.Update)
                 UpdateMain();
+        }
+
+        private void OnApplicationQuit()
+        {
+            Disconnect();
         }
         #endregion Unity3d Events
 
@@ -339,10 +344,10 @@ namespace LowNet.Unity3D
             {
                 try
                 {
+                    store.WriteLength();
                     if (Client.IsConnected)
                     {
                         store.InsertInt(Instance.ConnectionId);
-                        store.WriteLength();
                         if (socket != null)
                         {
                             socket.BeginSend(store.ToArray, store.Length, null, null);
@@ -417,8 +422,7 @@ namespace LowNet.Unity3D
                 tcp.socket.Close();
                 if (udp.socket != null)
                     udp.socket.Close();
-
-                Debug.Log("Disconnected from server.");
+                Client.Log("Disconnected from Server", Enums.LogType.LogNormal);
             }
         }
 
@@ -497,7 +501,7 @@ namespace LowNet.Unity3D
             player.IsMyView = isMyPlayer;
             player.PlayerId = PlayerId;
             player.PlayerName = playername;
-            Player.Add(PlayerId, player);
+            Player.Add(PlayerId, player.gameObject);
             player.gameObject.name = "CL: " + player.PlayerId + " | " + player.PlayerName;
         }
         #endregion Player Spawn Despawn

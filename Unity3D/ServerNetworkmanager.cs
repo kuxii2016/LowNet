@@ -12,7 +12,7 @@ namespace LowNet.Unity3D
         /// <summary>
         /// Player Holder
         /// </summary>
-        public static Dictionary<int, NetworkPlayer> Player = new Dictionary<int, NetworkPlayer>();
+        public static Dictionary<int, GameObject> Player = new Dictionary<int, GameObject>();
         public static ServerNetworkmanager Instance;
 
         [Header("Server IPAdresse")]
@@ -84,6 +84,7 @@ namespace LowNet.Unity3D
 
         private void OnDisconnect(object sender, DisconnectedEventArgs e)
         {
+            Destroy(Player[e.Client.Connectionid].gameObject);
             Player.Remove(e.Client.Connectionid);
             foreach (var item in Server.Server.Clients.Values)
             {
@@ -99,12 +100,13 @@ namespace LowNet.Unity3D
             if (!isMulti)
             {
                 NetworkPlayer player = Instantiate(Instance.PlayerModels[e.Client.Session.ModelId]);
+                player.Prefab = player.gameObject;
                 player.transform.position = e.Client.Session.Position;
                 player.transform.rotation = e.Client.Session.Rotation;
                 player.IsMyView = false;
                 player.PlayerId = e.Client.Connectionid;
                 player.PlayerName = e.Client.PlayerName;
-                Player.Add(e.Client.Connectionid, player);
+                Player.Add(e.Client.Connectionid, player.gameObject);
                 player.gameObject.name = "SV: " + player.PlayerId + " | " + player.PlayerName;
             }
             else
