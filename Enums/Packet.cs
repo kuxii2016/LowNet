@@ -33,6 +33,11 @@
         /// <summary>
         /// Send Object Sync Packet
         /// </summary>
-        LOWNET_OBJECKT_SYNC
+        LOWNET_OBJECKT_SYNC,
+
+        /// <summary>
+        /// Connect Udp Socket
+        /// </summary>
+        LOWNET_CONNECT_UDP
     }
 }

@@ -1,8 +1,5 @@
 ﻿using LowNet.Unity3D;
 using LowNet.Utils;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace LowNet.ClientPackets
@@ -28,7 +25,7 @@ namespace LowNet.ClientPackets
             Vector3 pos = store.PopVector3();
             Quaternion rot = store.PopQuaternion();
 
-            if(player == PlayerId)
+            if (player == PlayerId)
             {
                 myview = true;
                 Client.Log("Received Local Player.", Enums.LogType.LogDebug);

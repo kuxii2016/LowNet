@@ -1,13 +1,19 @@
 ﻿using LowNet.Enums;
 using LowNet.Utils;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LowNet.Server.Packets
 {
+    /// <summary>
+    /// Player Sending
+    /// </summary>
     class LOWNET_PLAYER
     {
+        /// <summary>
+        /// Send Player to Player
+        /// </summary>
+        /// <param name="toClient">Player was is Receiving</param>
+        /// <param name="client">Player was should send</param>
+        /// <param name="Creating">Create or Delete</param>
         internal static void SendPacket(Client toClient, Client client, bool Creating = false)
         {
             Store store = new Store((int)Packet.LOWNET_PLAYER);

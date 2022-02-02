@@ -98,7 +98,6 @@ namespace LowNet.Unity3D
         #endregion Packets
 
         #region Unity3d Events
-
         private void Awake()
         {
             if (Instance == null)
@@ -128,15 +127,16 @@ namespace LowNet.Unity3D
             if (NetworkSpeed == NetworkUpdate.Update)
                 UpdateMain();
         }
-
         #endregion Unity3d Events
 
         #region Threadmanager
-
         private static readonly List<Action> executeOnMainThread = new List<Action>();
         private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
         private static bool actionToExecuteOnMainThread = false;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
         public static void ExecuteOnMainThread(Action action)
         {
             if (action == null)
@@ -148,7 +148,9 @@ namespace LowNet.Unity3D
                 actionToExecuteOnMainThread = true;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static void UpdateMain()
         {
             if (actionToExecuteOnMainThread)
@@ -167,7 +169,6 @@ namespace LowNet.Unity3D
                 }
             }
         }
-
         #endregion Threadmanager
 
         #region Networking
@@ -369,7 +370,7 @@ namespace LowNet.Unity3D
 
                     HandleData(data);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Client.Log("Failed Read data over UDP: " + ex.Message, Enums.LogType.LogError);
                     Disconnect();
@@ -442,17 +443,12 @@ namespace LowNet.Unity3D
             {
                 yield return new WaitForSecondsRealtime(60);
                 System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
-                PingOptions options = new PingOptions();
-                options.DontFragment = true;
-
+                PingOptions options = new PingOptions { DontFragment = true };
                 string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                 byte[] buffer = Encoding.ASCII.GetBytes(data);
                 int timeout = 120;
                 PingReply reply = pingSender.Send(ServerIP, timeout, buffer, options);
-                if (reply.Status == IPStatus.Success)
-                {
-                    RTT = reply.RoundtripTime;
-                }
+                if (reply.Status == IPStatus.Success) { RTT = reply.RoundtripTime; }
                 StartCoroutine(GetPing());
             }
         }
@@ -515,7 +511,9 @@ namespace LowNet.Unity3D
             {
                 {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
                 {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
-                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
+                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket },
+                {(int)Packet.LOWNET_CONNECT_UDP, LOWNET_CONNECT_UDP.Readpacket },
+                {(int)Packet.LOWNET_PLAYER_SYNC, LOWNET_PLAYER_SYNC.Readpacket }
             };
             Packets = packets;
         }

@@ -302,7 +302,9 @@ namespace LowNet.Server
             {
                 {(int)Packet.LOWNET_CONNECT, LOWNET_CONNECT.Readpacket },
                 {(int)Packet.LOWNET_HANDSHAKE, LOWNET_HANDSHAKE.Readpacket },
-                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket }
+                {(int)Packet.LOWNET_PLAYER, LOWNET_PLAYER.Readpacket },
+                {(int)Packet.LOWNET_CONNECT_UDP, LOWNET_CONNECT_UDP.Readpacket },
+                {(int)Packet.LOWNET_PLAYER_SYNC, LOWNET_PLAYER_SYNC.Readpacket }
             };
             Packets = packets;
         }

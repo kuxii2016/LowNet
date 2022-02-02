@@ -229,7 +229,6 @@ namespace LowNet.Server
             ServerNetworkmanager.ExecuteOnMainThread(() =>
             {
                 Server.OnPlayerDisconnect(this);
-                //TODO: Call Unity3D Event
                 Tcp.Disconnect();
                 Udp.Disconnect();
                 Session = null;
@@ -243,17 +242,15 @@ namespace LowNet.Server
         {
             Server.OnPlayerconnect(this);
 
-            Server.Debug("Spawn All Player for new Connection.", Server.Instance);
             foreach (var player in Server.Clients.Values)
             {
-                if(player.Session != null)
+                if (player.Session != null)
                 {
-                    if(player.Connectionid != Connectionid)
+                    if (player.Connectionid != Connectionid)
                         LOWNET_PLAYER.SendPacket(this, player, true);
                 }
             }
 
-            Server.Debug("Spawn new Player to Old Players", Server.Instance);
             foreach (var player in Server.Clients.Values)
             {
                 if (player.Session != null)
@@ -261,6 +258,8 @@ namespace LowNet.Server
                     LOWNET_PLAYER.SendPacket(player, this, true);
                 }
             }
+
+            SendObjeckt();
         }
 
         /// <summary>
@@ -268,6 +267,7 @@ namespace LowNet.Server
         /// </summary>
         public void SendObjeckt()
         {
+            LOWNET_CONNECT_UDP.Sendpacket(this);
         }
     }
 }
